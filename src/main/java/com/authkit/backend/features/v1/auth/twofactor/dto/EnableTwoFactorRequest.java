@@ -1,0 +1,11 @@
+package com.authkit.backend.features.v1.auth.twofactor.dto;
+
+import com.authkit.backend.domain.enums.TwoFactorMethod;
+
+import lombok.Data;
+
+@Data
+public class EnableTwoFactorRequest {
+    private TwoFactorMethod method;
+    private String secret;
+}
