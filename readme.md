@@ -1,97 +1,68 @@
-
-# FINAPP - Investment Goal Tracker
+# AuthKit API
 
 ## Description
 
-Finapp is a financial management application that allows users to organize their investments into "fund boxes" (goal-based savings or investment buckets). The project is built with Spring Boot on the backend and is designed to integrate with a mobile app. Users can manage deposits with collaborative financial goal support.
+AuthKit API is a robust and modular authentication template built with Spring Boot. It provides a complete foundation for secure user authentication and authorization, ideal for starting new projects with ready-to-use authentication features.
+
+This project includes support for JWT (access and refresh tokens), password reset flows, and Two-Factor Authentication (2FA) using TOTP.
 
 ## Main Features
 
--   Create collaborative find boxes by inviting other users
-
--   User registration, authentication, and session management with JWT and refresh tokens
-
--   Create, edit, view, and delete fund boxes
-
--   Request password reset via email (token-based)
-
--   Add deposits (entries and exits)
-
--   Real-time fund box balance calculation
-
--   Automatic deposit unlinking when a fund box is deleted
-
+-   User registration and login
+-   JWT authentication with access and refresh tokens
+-   Secure password reset via email (token-based)
+-   Two-Factor Authentication (2FA) with TOTP (Time-based One-Time Password)
+-   Session management and token refresh
 -   Centralized error handling with custom messages
-
 
 ## Technologies
 
 -   Java 21
-
 -   Spring Boot
-
 -   Spring Web
-
 -   Spring Security
-
 -   Spring Data JPA
-
 -   MySQL
-
 -   JWT (JSON Web Tokens)
-
+-   2FA TOTP
 
 ## How to Run Locally
 
-1.  Clone the repository
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/mwndl/authkit-api.git
+    cd authkit-api
+    ```
 
-2.  Configure the `application.properties` file with your database credentials
+2. Configure the `application.properties` or `application.yml` file with your database credentials.
 
-3.  Run the app via your IDE or use `./mvnw spring-boot:run`
+3. Run the app via your IDE or with:
+    ```bash
+    ./mvnw spring-boot:run
+    ```
 
-4.  The API will be available at `http://localhost:8080`
+4. The API will be available at:
+    ```
+    http://localhost:8080
+    ```
 
+## Project Structure
 
-## Main Project Structure
-
--   `controller`: REST endpoints
-
+-   `controller`: REST API endpoints
 -   `service`: business logic
-
 -   `model`: JPA entities
-
--   `repository`: data access interfaces
-
+-   `repository`: data access layer
 -   `dto`: data transfer objects
-
 -   `exception`: centralized error handling
-
-
-## Business Rules
-
--   Each user can create multiple fund boxes, each with a unique name
-
--   A deposit can be linked or unlinked from a fund box
-
--   When a fund box is deleted, its deposits remain but are unlinked
-
--   Users can only access and manage their own data
-
+-   `security`: authentication and authorization config
 
 ## Key Endpoints
 
-All available endpoints, request/response formats, and authentication details can be found in the Swagger UI:
+All available endpoints, including request/response formats and authentication details, are documented in Swagger UI:
 
 👉 [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
 > Make sure the application is running locally before accessing.
-
-## Planned Features
-
--   Transform deposits into fixed income investments
-
--   Exportable financial reports
-
 
 ## Author
 
@@ -99,5 +70,4 @@ This project is developed by **Marcos Wiendl**.
 For suggestions, feedback, or contributions, feel free to:
 
 -   Open an issue or submit a pull request
-
 -   Connect on [LinkedIn – Marcos Wiendl](https://www.linkedin.com/in/marcoswiendl)
