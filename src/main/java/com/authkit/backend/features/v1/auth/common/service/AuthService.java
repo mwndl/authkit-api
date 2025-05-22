@@ -15,6 +15,7 @@ import com.authkit.backend.domain.repository.user.UserRepository;
 import com.authkit.backend.shared.security.JwtService;
 import com.authkit.backend.shared.security.UserDetailsImpl;
 import com.authkit.backend.shared.utils.LoginUtil;
+import com.authkit.backend.features.v1.utils.audit.Audited;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,6 +38,7 @@ public class AuthService {
     private final ValidationServiceHelper validationService;
     private final LoginUtil loginUtil;
 
+    @Audited(action = "REGISTER", entityType = "USER")
     public TokensResponse register(RegisterRequest request, HttpServletRequest httpRequest) {
         validationService.validateEmail(request.getEmail());
         validationService.validateUsername(request.getUsername());
@@ -50,6 +52,7 @@ public class AuthService {
         return generateAndPersistTokens(user, httpRequest);
     }
 
+    @Audited(action = "LOGIN", entityType = "USER")
     public AuthResponse login(LoginRequest request, HttpServletRequest httpRequest) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ApiException(ApiErrorCode.INVALID_CREDENTIALS));
