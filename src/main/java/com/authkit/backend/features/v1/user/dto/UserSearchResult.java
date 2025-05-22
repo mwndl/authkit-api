@@ -10,7 +10,8 @@ import java.util.UUID;
 public class UserSearchResult {
     UUID id;
     String username;
-    String surname;
     String name;
+    String surname;
+    String pictureHash;
     double confidence;
 }

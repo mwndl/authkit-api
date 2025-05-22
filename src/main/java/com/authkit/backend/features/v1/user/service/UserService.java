@@ -48,7 +48,8 @@ public class UserService {
         // search for exact username
         try {
             User exactMatch = userServiceHelper.getUserByUsername(identifier);
-            results.add(new UserSearchResult(exactMatch.getId(), exactMatch.getUsername(), exactMatch.getSurname(), exactMatch.getName(), 1.0));
+            String emailHash = HashUtil.md5(exactMatch.getEmail());
+            results.add(new UserSearchResult(exactMatch.getId(), exactMatch.getUsername(), exactMatch.getName(), exactMatch.getSurname(), emailHash, 1.0));
             addedIds.add(exactMatch.getId());
         } catch (ApiException e) {
             // ignore if not found (not an error)
@@ -62,7 +63,8 @@ public class UserService {
             if (addedIds.contains(user.getId())) continue;
 
             double score = computeUsernameConfidence(identifier.toLowerCase(), user.getUsername().toLowerCase());
-            results.add(new UserSearchResult(user.getId(), user.getUsername(), user.getSurname(), user.getName(), score));
+            String emailHash = HashUtil.md5(user.getEmail());
+            results.add(new UserSearchResult(user.getId(), user.getUsername(), user.getName(), user.getSurname(), emailHash, score));
         }
 
         return results.stream()
