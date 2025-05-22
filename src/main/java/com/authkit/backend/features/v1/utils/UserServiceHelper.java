@@ -1,8 +1,8 @@
 package com.authkit.backend.features.v1.utils;
 
 import com.authkit.backend.domain.model.User;
+import com.authkit.backend.domain.repository.user.UserRepository;
 import com.authkit.backend.domain.enums.UserStatus;
-import com.authkit.backend.features.v1.user.repository.UserRepository;
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import com.authkit.backend.shared.exception.ApiException;
 import lombok.RequiredArgsConstructor;

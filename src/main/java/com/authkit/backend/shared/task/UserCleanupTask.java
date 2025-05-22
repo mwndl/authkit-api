@@ -1,7 +1,8 @@
 package com.authkit.backend.shared.task;
 
 import com.authkit.backend.domain.enums.UserStatus;
-import com.authkit.backend.features.v1.user.repository.UserRepository;
+import com.authkit.backend.domain.repository.user.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

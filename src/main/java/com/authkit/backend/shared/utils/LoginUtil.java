@@ -2,10 +2,10 @@ package com.authkit.backend.shared.utils;
 
 import com.authkit.backend.domain.model.LoginAttempt;
 import com.authkit.backend.domain.model.User;
+import com.authkit.backend.domain.repository.auth.common.UserTokenRepository;
+import com.authkit.backend.domain.repository.user.UserRepository;
 import com.authkit.backend.domain.enums.UserStatus;
 import com.authkit.backend.features.v1.auth.common.dto.request.LoginRequest;
-import com.authkit.backend.features.v1.auth.common.repository.UserTokenRepository;
-import com.authkit.backend.features.v1.user.repository.UserRepository;
 import com.authkit.backend.shared.exception.ApiException;
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import com.authkit.backend.shared.security.JwtUtil;

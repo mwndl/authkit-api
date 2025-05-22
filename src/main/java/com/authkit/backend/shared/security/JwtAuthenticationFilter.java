@@ -1,7 +1,7 @@
 package com.authkit.backend.shared.security;
 
 import com.authkit.backend.domain.model.UserToken;
-import com.authkit.backend.features.v1.auth.common.repository.UserTokenRepository;
+import com.authkit.backend.domain.repository.auth.common.UserTokenRepository;
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import com.authkit.backend.shared.exception.ApiException;
 import io.jsonwebtoken.ExpiredJwtException;

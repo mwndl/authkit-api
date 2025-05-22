@@ -1,7 +1,7 @@
 package com.authkit.backend.features.v1.auth.common.service;
 
 import com.authkit.backend.domain.model.PasswordResetToken;
-import com.authkit.backend.features.v1.auth.common.repository.PasswordResetTokenRepository;
+import com.authkit.backend.domain.repository.auth.common.PasswordResetTokenRepository;
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import com.authkit.backend.shared.exception.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;

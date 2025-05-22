@@ -1,7 +1,7 @@
 package com.authkit.backend.features.v1.auth.common.service;
 
 import com.authkit.backend.domain.model.LoginAttempt;
-import com.authkit.backend.features.v1.auth.common.repository.LoginAttemptRepository;
+import com.authkit.backend.domain.repository.auth.common.LoginAttemptRepository;
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import com.authkit.backend.shared.exception.ApiException;
 import org.springframework.transaction.annotation.Transactional;

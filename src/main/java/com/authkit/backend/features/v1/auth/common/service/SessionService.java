@@ -2,7 +2,7 @@ package com.authkit.backend.features.v1.auth.common.service;
 
 import com.authkit.backend.domain.model.User;
 import com.authkit.backend.domain.model.UserToken;
-import com.authkit.backend.features.v1.auth.common.repository.UserTokenRepository;
+import com.authkit.backend.domain.repository.auth.common.UserTokenRepository;
 import com.authkit.backend.features.v1.utils.UserServiceHelper;
 import com.authkit.backend.features.v1.auth.common.dto.response.SessionInfoResponse;
 import com.authkit.backend.shared.exception.ApiErrorCode;

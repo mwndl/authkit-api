@@ -10,7 +10,7 @@ import com.authkit.backend.shared.exception.ApiErrorCode;
 import com.authkit.backend.shared.exception.ApiException;
 import com.authkit.backend.shared.utils.HashUtil;
 import com.authkit.backend.domain.model.User;
-import com.authkit.backend.features.v1.user.repository.UserRepository;
+import com.authkit.backend.domain.repository.user.UserRepository;
 import com.authkit.backend.features.v1.auth.common.service.SessionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;

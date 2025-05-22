@@ -1,8 +1,9 @@
 package com.authkit.backend.shared.security;
 
 import com.authkit.backend.domain.model.User;
+import com.authkit.backend.domain.repository.user.UserRepository;
 import com.authkit.backend.domain.enums.UserStatus;
-import com.authkit.backend.features.v1.user.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package com.authkit.backend.shared.task;
 
-import com.authkit.backend.features.v1.auth.common.repository.UserTokenRepository;
 import com.authkit.backend.domain.model.UserToken;
+import com.authkit.backend.domain.repository.auth.common.UserTokenRepository;
 import com.authkit.backend.shared.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
