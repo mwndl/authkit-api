@@ -1,4 +1,4 @@
-package com.authkit.backend.features.v1.user.repository;
+package com.authkit.backend.domain.repository.user;
 
 import com.authkit.backend.domain.model.User;
 import com.authkit.backend.domain.enums.UserStatus;

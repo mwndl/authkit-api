@@ -1,4 +1,4 @@
-package com.authkit.backend.features.v1.auth.common.repository;
+package com.authkit.backend.domain.repository.auth.common;
 
 import com.authkit.backend.domain.model.PasswordResetToken;
 import org.springframework.data.jpa.repository.JpaRepository;
