@@ -2,8 +2,12 @@ package com.authkit.backend.features.v1.auth.common.service;
 
 import com.authkit.backend.domain.model.PasswordResetToken;
 import com.authkit.backend.domain.repository.auth.common.PasswordResetTokenRepository;
+import com.authkit.backend.features.v1.utils.EmailServiceHelper;
+import com.authkit.backend.features.v1.utils.ResetLinkBuilderHelper;
+import com.authkit.backend.features.v1.utils.audit.Audited;
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import com.authkit.backend.shared.exception.ApiException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +15,21 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class PasswordResetService {
 
-    @Autowired
-    private PasswordResetTokenRepository tokenRepository;
+    private final PasswordResetTokenRepository tokenRepository;
+    private final ResetLinkBuilderHelper resetLinkBuilderHelper;
+    private final EmailServiceHelper emailService;
+
+    @Audited(action = "REQUEST_PASSWORD_RESET", entityType = "USER")
+    public void handleForgotPassword(String email) {
+        PasswordResetToken token = createToken(email);
+        String resetLink = resetLinkBuilderHelper.buildResetPasswordLink(token.getToken());
+
+        String message = "Click the link to reset your password: " + resetLink;
+        emailService.sendEmail(email, "Password Reset", message);
+    }
 
     public PasswordResetToken createToken(String email) {
         PasswordResetToken token = new PasswordResetToken();

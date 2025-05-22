@@ -160,11 +160,7 @@ public class AuthController {
 
         @PostMapping("/forgot-password")
         public void forgotPassword(@RequestBody ForgotPasswordRequest request) {
-                PasswordResetToken token = passwordResetService.createToken(request.getEmail());
-                String resetLink = resetLinkBuilderHelper.buildResetPasswordLink(token.getToken());
-
-                String message = "Click the link to reset your password: " + resetLink;
-                emailService.sendEmail(request.getEmail(), "Password Reset", message);
+                passwordResetService.handleForgotPassword(request.getEmail());
         }
 
         @PostMapping("/reset-password")
