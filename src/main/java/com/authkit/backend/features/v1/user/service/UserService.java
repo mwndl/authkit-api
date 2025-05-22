@@ -3,6 +3,7 @@ package com.authkit.backend.features.v1.user.service;
 import com.authkit.backend.domain.event.PasswordChangedEvent;
 import com.authkit.backend.domain.enums.UserStatus;
 import com.authkit.backend.features.v1.utils.ValidationServiceHelper;
+import com.authkit.backend.features.v1.utils.audit.Audited;
 import com.authkit.backend.features.v1.utils.UserServiceHelper;
 import com.authkit.backend.features.v1.user.dto.UserResponse;
 import com.authkit.backend.features.v1.user.dto.UserSearchResult;
@@ -80,6 +81,7 @@ public class UserService {
         return 0.5;
     }
 
+    @Audited(action = "UPDATE_PROFILE", entityType = "USER")
     public void updateUserData(String email, String newName, String newUsername, String newSurname) {
         User user = userServiceHelper.getUserByEmail(email);
         userServiceHelper.checkUserStatus(user);
@@ -92,12 +94,14 @@ public class UserService {
             updateUsername(user, newUsername);
     }
 
+    @Audited(action = "RESET_PASSWORD", entityType = "USER")
     public void updatePasswordByEmail(String email, String newPassword) {
         User user = userServiceHelper.getUserByEmail(email);
         userServiceHelper.checkUserStatus(user);
         updateUserPassword(user, newPassword);
     }
 
+    @Audited(action = "UPDATE_PASSWORD", entityType = "USER")
     public void updateUserPassword(String email, String currentPassword, String newPassword) {
         User user = userServiceHelper.getUserByEmail(email);
         userServiceHelper.checkUserStatus(user);
@@ -107,6 +111,7 @@ public class UserService {
         updateUserPassword(user, newPassword);
     }
 
+    @Audited(action = "REQUEST_ACCOUNT_DELETION", entityType = "USER")
     public void requestAccountDeletion(String email) {
         User user = userServiceHelper.getUserByEmail(email);
         userServiceHelper.checkUserStatus(user);
