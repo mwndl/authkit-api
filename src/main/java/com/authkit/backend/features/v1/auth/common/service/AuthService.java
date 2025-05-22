@@ -132,6 +132,7 @@ public class AuthService {
         userTokenRepository.save(userToken);
     }
 
+    @Audited(action = "CREATE_SESSION", entityType = "USER")
     public TokensResponse generateAndPersistTokens(User user, HttpServletRequest httpRequest) {
         UserDetailsImpl userDetails = new UserDetailsImpl(user);
         String accessToken = jwtService.generateToken(userDetails);
