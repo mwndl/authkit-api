@@ -5,6 +5,7 @@ import com.authkit.backend.domain.model.UserToken;
 import com.authkit.backend.domain.repository.auth.common.UserTokenRepository;
 import com.authkit.backend.features.v1.utils.UserServiceHelper;
 import com.authkit.backend.features.v1.auth.common.dto.response.SessionInfoResponse;
+import com.authkit.backend.features.v1.utils.audit.Audited;
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import com.authkit.backend.shared.exception.ApiException;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class SessionService {
                 .toList();
     }
 
+    @Audited(action = "REVOKE_CURRENT_SESSION", entityType = "USER")
     public void revokeCurrentSession(String accessToken) {
         UserToken userToken = userTokenRepository.findByAccessTokenAndRevokedFalse(accessToken)
                 .orElseThrow(() -> new ApiException(ApiErrorCode.INVALID_ACCESS_TOKEN));
@@ -45,6 +47,7 @@ public class SessionService {
         userTokenRepository.save(userToken);
     }
 
+    @Audited(action = "REVOKE_SPECIFIC_SESSION", entityType = "USER")
     public void revokeSpecificSession(UUID sessionId, String email, String currentAccessToken) {
         User user = userServiceHelper.getActiveUserByEmail(email);
         UserToken userSession = getActiveSessionById(sessionId);
@@ -66,6 +69,7 @@ public class SessionService {
                 .orElseThrow(() -> new ApiException(ApiErrorCode.SESSION_NOT_FOUND));
     }
 
+    @Audited(action = "LOGOUT_ALL_BUT_CURRENT", entityType = "USER")
     public void logoutAllSessions(String email,String currentAccessToken) {
         User user = userServiceHelper.getActiveUserByEmail(email);
         List<UserToken> activeTokens = userTokenRepository.findAllByUserAndRevokedFalse(user);
@@ -80,6 +84,7 @@ public class SessionService {
         userTokenRepository.saveAll(activeTokens);
     }
 
+    @Audited(action = "REVOKE_ALL_SESSIONS", entityType = "USER")
     public void revokeAllUserSessions(User user) {
         List<UserToken> activeTokens = userTokenRepository.findAllByUserAndRevokedFalse(user);
 
