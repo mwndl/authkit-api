@@ -27,7 +27,7 @@ public class TOTPService {
     }
 
     public String generateQRCodeUrl(String email, String secret) {
-        return GoogleAuthenticatorQRGenerator.getOtpAuthURL("FinApp", email, 
+        return GoogleAuthenticatorQRGenerator.getOtpAuthURL("AuthKit", email,
             new GoogleAuthenticatorKey.Builder(secret).build());
     }
 
