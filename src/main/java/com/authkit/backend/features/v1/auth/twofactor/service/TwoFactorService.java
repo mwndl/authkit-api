@@ -14,6 +14,7 @@ import com.authkit.backend.features.v1.auth.twofactor.dto.TwoFactorVerificationR
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import com.authkit.backend.shared.exception.ApiException;
 import com.authkit.backend.shared.security.JwtService;
+import com.authkit.backend.features.v1.utils.audit.Audited;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -37,6 +38,7 @@ public class TwoFactorService {
     private final TOTPService totpService;
     private final PasswordEncoder passwordEncoder;
 
+    @Audited(action = "ENABLE_2FA", entityType = "USER")
     @Transactional
     public TwoFactorSetupResponse setup2FA(TwoFactorSetupRequest request, HttpServletRequest httpRequest) {
         String username = jwtService.extractUsernameFromRequest(httpRequest);
@@ -93,6 +95,7 @@ public class TwoFactorService {
             .build();
     }
 
+    @Audited(action = "VERIFY_2FA", entityType = "USER")
     public TokensResponse verify2FA(TwoFactorVerificationRequest request, HttpServletRequest httpRequest) {
         String username = jwtService.extractUsername(request.getPendingToken());
 
@@ -136,6 +139,7 @@ public class TwoFactorService {
         return authService.generateAndPersistTokens(user, httpRequest);
     }
 
+    @Audited(action = "DISABLE_2FA", entityType = "USER")
     @Transactional
     public void disable2FA(RemoveTwoFactorRequest request, HttpServletRequest httpRequest) {
         String username = jwtService.extractUsernameFromRequest(httpRequest);
