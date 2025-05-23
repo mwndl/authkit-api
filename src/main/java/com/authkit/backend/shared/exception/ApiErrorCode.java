@@ -19,7 +19,7 @@ public enum ApiErrorCode {
     INVALID_2FA_METHOD(400, "INVALID_2FA_METHOD", "Invalid 2FA method", "Invalid two-factor authentication method"),
 
     // 401 - Unauthorized
-    UNAUTHENTICATED(401, "UNAUTHENTICATED", "User not authenticated", "Authentication is required to access this resource. Please provide a valid token."),
+    UNAUTHENTICATED(401, "UNAUTHENTICATED", "User not authenticated", "Authentication is required to access this resource"),
     AUTH_EMAIL_NOT_FOUND(401, "AUTH_EMAIL_NOT_FOUND", "Email not found", "The email provided was not found in the database."),
     INVALID_CREDENTIALS(401, "INVALID_CREDENTIALS", "Invalid credentials", "Email or password is incorrect."),
     ACCOUNT_DEACTIVATED(401, "ACCOUNT_DEACTIVATED", "Account is deactivated", "Your account is in the process of being deleted. Please log in again to reactivate your account."),
@@ -32,6 +32,7 @@ public enum ApiErrorCode {
     EXPIRED_TOKEN(401,"EXPIRED_TOKEN", "Expired Token", "The token provided is expired and is no longer valid." ),
     INVALID_PENDING_TOKEN(401, "INVALID_PENDING_TOKEN", "Invalid pending token", "The pending token provided is invalid or has expired. Please request a new one."),
     INVALID_2FA_CODE(401, "INVALID_2FA_CODE", "Invalid 2FA code", "The two-factor authentication code provided is invalid or has expired. Please try again."),
+    TWO_FACTOR_REQUIRED(401, "TWO_FACTOR_REQUIRED", "Two-factor authentication required", "Two-factor authentication is required to complete the login process."),
 
     // 403 - Forbidden
     ACCOUNT_LOCKED(403, "ACCOUNT_LOCKED", "Account is locked", "Your account is locked due to too many failed login attempts"),
