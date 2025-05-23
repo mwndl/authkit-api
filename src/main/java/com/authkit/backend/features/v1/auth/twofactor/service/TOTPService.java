@@ -36,7 +36,7 @@ public class TOTPService {
         
         // Check if user is locked out
         if (isLockedOut(key)) {
-            throw new ApiException(ApiErrorCode.TOO_MANY_ATTEMPTS);
+            throw new ApiException(ApiErrorCode.TOO_MANY_2FA_ATTEMPTS);
         }
 
         boolean isValid = gAuth.authorize(method.getSecret(), Integer.parseInt(code));
