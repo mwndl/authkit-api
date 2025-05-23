@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +40,7 @@ public class AuthService {
     private final LoginUtil loginUtil;
 
     @Audited(action = "REGISTER", entityType = "USER")
-    public TokensResponse register(RegisterRequest request, HttpServletRequest httpRequest) {
+    public void register(RegisterRequest request, HttpServletRequest httpRequest) {
         validationService.validateEmail(request.getEmail());
         validationService.validateUsername(request.getUsername());
         validationService.validateName(request.getName());
@@ -48,17 +49,18 @@ public class AuthService {
 
         User user = createUser(request);
         userRepository.save(user);
-
-        return generateAndPersistTokens(user, httpRequest);
     }
 
     @Audited(action = "LOGIN", entityType = "USER")
-    public AuthResponse login(LoginRequest request, HttpServletRequest httpRequest) {
+    public void login(LoginRequest request, HttpServletRequest httpRequest) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ApiException(ApiErrorCode.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash()))
             throw new ApiException(ApiErrorCode.INVALID_CREDENTIALS);
+
+        if (user.getStatus() == UserStatus.PENDING_VERIFICATION)
+            throw new ApiException(ApiErrorCode.ACCOUNT_NOT_VERIFIED);
 
         if (user.getStatus() == UserStatus.DEACTIVATION_REQUESTED) {
             user.setStatus(UserStatus.ACTIVE);
@@ -73,16 +75,10 @@ public class AuthService {
         if (has2FA) {
             // Generate a short-lived pending token for 2FA verification
             String pendingToken = jwtService.generatePendingToken(user);
-            return AuthResponse.builder()
-                    .twoFactorRequired(true)
-                    .pendingToken(pendingToken)
-                    .build();
+            throw new ApiException(ApiErrorCode.TWO_FACTOR_REQUIRED, Map.of("pendingToken", pendingToken));
         }
 
-        return AuthResponse.builder()
-                .twoFactorRequired(false)
-                .auth(generateAndPersistTokens(user, httpRequest))
-                .build();
+        throw new ApiException(ApiErrorCode.ACCOUNT_NOT_VERIFIED);
     }
 
     public void validateUsernameAvailability(String username) {
@@ -170,7 +166,7 @@ public class AuthService {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setStatus(UserStatus.ACTIVE); // replace by 'UserStatus.PENDING_VERIFICATION' when the email logic is completed
+        user.setStatus(UserStatus.PENDING_VERIFICATION);
         user.setTwoFactorMethods(new ArrayList<>());
         return user;
     }

@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,22 +42,25 @@ public class AuthController {
         private final ResetLinkBuilderHelper resetLinkBuilderHelper;
 
         @PostMapping("/register")
-        @Operation(summary = "Register a new user", description = "Creates a new user account and returns an authentication token", responses = {
-                        @ApiResponse(responseCode = "200", description = "OK - User successfully registered"),
+        @Operation(summary = "Register a new user", description = "Creates a new user account", responses = {
+                        @ApiResponse(responseCode = "201", description = "Created - User successfully registered"),
                         @ApiResponse(responseCode = "400", description = "Bad Request - Validation errors"),
         })
-        public ResponseEntity<TokensResponse> register(@RequestBody @Valid RegisterRequest request, HttpServletRequest httpRequest) {
-                return ResponseEntity.ok(authService.register(request, httpRequest));
+        public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequest request, HttpServletRequest httpRequest) {
+                authService.register(request, httpRequest);
+                return ResponseEntity.status(HttpStatus.CREATED).build();
         }
 
         @PostMapping("/login")
-        @Operation(summary = "Authenticate user", description = "Authenticates the user and returns a JWT token if credentials are valid", responses = {
+        @Operation(summary = "Authenticate user", description = "Authenticates the user", responses = {
                         @ApiResponse(responseCode = "200", description = "OK - Login successful"),
                         @ApiResponse(responseCode = "400", description = "Bad Request - Validation errors"),
-                        @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid or missing token")
+                        @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials"),
+                        @ApiResponse(responseCode = "403", description = "Forbidden - Account not verified or locked")
         })
-        public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request, HttpServletRequest httpRequest) {
-                return ResponseEntity.ok(authService.login(request, httpRequest));
+        public ResponseEntity<Void> login(@RequestBody @Valid LoginRequest request, HttpServletRequest httpRequest) {
+                authService.login(request, httpRequest);
+                return ResponseEntity.ok().build();
         }
 
         @PostMapping("/validate-username")
