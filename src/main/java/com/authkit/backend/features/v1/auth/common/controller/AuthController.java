@@ -46,9 +46,8 @@ public class AuthController {
                         @ApiResponse(responseCode = "201", description = "Created - User successfully registered"),
                         @ApiResponse(responseCode = "400", description = "Bad Request - Validation errors"),
         })
-        public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequest request, HttpServletRequest httpRequest) {
-                authService.register(request, httpRequest);
-                return ResponseEntity.status(HttpStatus.CREATED).build();
+        public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterRequest request, HttpServletRequest httpRequest) {
+                return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request, httpRequest));
         }
 
         @PostMapping("/login")
@@ -58,9 +57,8 @@ public class AuthController {
                         @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials"),
                         @ApiResponse(responseCode = "403", description = "Forbidden - Account not verified or locked")
         })
-        public ResponseEntity<Void> login(@RequestBody @Valid LoginRequest request, HttpServletRequest httpRequest) {
-                authService.login(request, httpRequest);
-                return ResponseEntity.ok().build();
+        public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request, HttpServletRequest httpRequest) {
+                return ResponseEntity.ok(authService.login(request, httpRequest));
         }
 
         @PostMapping("/validate-username")

@@ -45,7 +45,9 @@ public class SecurityConfig {
                     "/api/v1/auth/validate-email",
                     "/api/v1/auth/2fa/setup",
                     "/api/v1/auth/2fa/verify",
-                    "/api/v1/auth/2fa/disable"
+                    "/api/v1/auth/2fa/disable",
+                    "/api/v1/auth/verify/token",
+                    "/api/v1/auth/verify/code"
                 ).permitAll()
                 .requestMatchers(
                         "/v3/api-docs/**",

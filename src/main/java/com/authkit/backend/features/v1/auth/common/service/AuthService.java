@@ -16,6 +16,7 @@ import com.authkit.backend.shared.security.JwtService;
 import com.authkit.backend.shared.security.UserDetailsImpl;
 import com.authkit.backend.shared.utils.LoginUtil;
 import com.authkit.backend.features.v1.utils.audit.Audited;
+import com.authkit.backend.features.v1.auth.verification.service.VerificationEmailService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.Map;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -38,9 +40,10 @@ public class AuthService {
     private final UserDetailsService userDetailsService;
     private final ValidationServiceHelper validationService;
     private final LoginUtil loginUtil;
+    private final VerificationEmailService verificationEmailService;
 
     @Audited(action = "REGISTER", entityType = "USER")
-    public void register(RegisterRequest request, HttpServletRequest httpRequest) {
+    public AuthResponse register(RegisterRequest request, HttpServletRequest httpRequest) {
         validationService.validateEmail(request.getEmail());
         validationService.validateUsername(request.getUsername());
         validationService.validateName(request.getName());
@@ -49,18 +52,23 @@ public class AuthService {
 
         User user = createUser(request);
         userRepository.save(user);
+        
+        // Send verification email
+        verificationEmailService.sendVerificationEmail(user);
+
+        return AuthResponse.builder()
+                .twoFactorRequired(false)
+                .auth(generateAndPersistTokens(user, httpRequest))
+                .build();
     }
 
     @Audited(action = "LOGIN", entityType = "USER")
-    public void login(LoginRequest request, HttpServletRequest httpRequest) {
+    public AuthResponse login(LoginRequest request, HttpServletRequest httpRequest) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ApiException(ApiErrorCode.INVALID_CREDENTIALS));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash()))
             throw new ApiException(ApiErrorCode.INVALID_CREDENTIALS);
-
-        if (user.getStatus() == UserStatus.PENDING_VERIFICATION)
-            throw new ApiException(ApiErrorCode.ACCOUNT_NOT_VERIFIED);
 
         if (user.getStatus() == UserStatus.DEACTIVATION_REQUESTED) {
             user.setStatus(UserStatus.ACTIVE);
@@ -68,17 +76,23 @@ public class AuthService {
             userRepository.save(user);
         }
 
-        // Check if user has 2FA enabled
+        // check if user has 2FA enabled
         boolean has2FA = user.getTwoFactorMethods().stream()
                 .anyMatch(method -> method.isEnabled() && method.isVerified());
 
         if (has2FA) {
             // Generate a short-lived pending token for 2FA verification
             String pendingToken = jwtService.generatePendingToken(user);
-            throw new ApiException(ApiErrorCode.TWO_FACTOR_REQUIRED, Map.of("pendingToken", pendingToken));
+            return AuthResponse.builder()
+                    .twoFactorRequired(true)
+                    .pendingToken(pendingToken)
+                    .build();
         }
 
-        throw new ApiException(ApiErrorCode.ACCOUNT_NOT_VERIFIED);
+        return AuthResponse.builder()
+                .twoFactorRequired(false)
+                .auth(generateAndPersistTokens(user, httpRequest))
+                .build();
     }
 
     public void validateUsernameAvailability(String username) {
@@ -174,5 +188,24 @@ public class AuthService {
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
             .orElseThrow(() -> new ApiException(ApiErrorCode.AUTH_EMAIL_NOT_FOUND));
+    }
+
+    public AuthResponse generateAuthResponse(User user, HttpServletRequest request) {
+        UserDetailsImpl userDetails = new UserDetailsImpl(user);
+        String accessToken = jwtService.generateToken(userDetails);
+        String refreshToken = jwtService.generateRefreshToken(userDetails);
+        Date accessTokenExpiresAt = jwtService.extractExpiration(accessToken);
+        Date refreshTokenExpiresAt = jwtService.extractExpiration(refreshToken);
+
+        return new AuthResponse(
+            false,
+            null,
+            new TokensResponse(
+                accessToken,
+                accessTokenExpiresAt,
+                refreshToken,
+                refreshTokenExpiresAt
+            )
+        );
     }
 }
