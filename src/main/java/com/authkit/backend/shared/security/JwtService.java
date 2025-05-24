@@ -77,6 +77,19 @@ public class JwtService {
                 .compact();
     }
 
+    public String generateVerificationToken(User user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("type", "email_verification");
+        
+        return Jwts.builder()
+            .setClaims(claims)
+            .setSubject(user.getEmail())
+            .setIssuedAt(new Date(System.currentTimeMillis()))
+            .setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)) // 24 hours
+            .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+            .compact();
+    }
+
     private String buildToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails,
