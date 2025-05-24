@@ -4,6 +4,7 @@ import com.authkit.backend.features.v1.auth.common.dto.request.LoginRequest;
 import com.authkit.backend.features.v1.auth.common.dto.request.RegisterRequest;
 import com.authkit.backend.domain.model.User;
 import com.authkit.backend.domain.repository.user.UserRepository;
+import com.authkit.backend.domain.repository.auth.common.UserTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -18,6 +19,7 @@ public class AuditAspect {
 
     private final AuditService auditService;
     private final UserRepository userRepository;
+    private final UserTokenRepository userTokenRepository;
 
     @Around("@annotation(audited)")
     public Object audit(ProceedingJoinPoint joinPoint, Audited audited) throws Throwable {
@@ -27,7 +29,7 @@ public class AuditAspect {
         String methodName = signature.getMethod().getName();
         
         String entityId = extractEntityId(joinPoint.getArgs()[0]);
-        User user = userRepository.findByEmail(entityId).orElse(null);
+        User user = extractUser(entityId, audited.action());
         
         auditService.logAction(
             audited.action(),
@@ -49,5 +51,17 @@ public class AuditAspect {
         } else {
             return String.valueOf(firstParam);
         }
+    }
+
+    private User extractUser(String entityId, String action) {
+        // For session-related actions, extract user from token
+        if (action.startsWith("REVOKE") || action.equals("LOGOUT")) {
+            return userTokenRepository.findByAccessTokenAndRevokedFalse(entityId)
+                .map(token -> token.getUser())
+                .orElse(null);
+        }
+        
+        // For other actions, try to find user by email
+        return userRepository.findByEmail(entityId).orElse(null);
     }
 } 
