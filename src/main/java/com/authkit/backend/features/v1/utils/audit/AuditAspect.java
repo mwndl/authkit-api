@@ -6,6 +6,7 @@ import com.authkit.backend.domain.model.User;
 import com.authkit.backend.domain.repository.user.UserRepository;
 import com.authkit.backend.domain.repository.auth.common.UserTokenRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class AuditAspect {
 
     private final AuditService auditService;
@@ -23,21 +25,47 @@ public class AuditAspect {
 
     @Around("@annotation(audited)")
     public Object audit(ProceedingJoinPoint joinPoint, Audited audited) throws Throwable {
+        String entityId = extractEntityId(joinPoint.getArgs()[0]);
+        
+        // For session-related actions, get user before executing the method
+        User user = null;
+        if (audited.action().startsWith("REVOKE") || audited.action().equals("LOGOUT")) {
+            user = userTokenRepository.findByAccessTokenAndRevokedFalse(entityId)
+                .map(token -> token.getUser())
+                .orElseGet(() -> {
+                    log.warn("No active token found for: {}", entityId);
+                    return null;
+                });
+            
+            if (user == null) {
+                log.warn("Could not find user for entityId: {} and action: {}", entityId, audited.action());
+                return joinPoint.proceed();
+            }
+        }
+        
+        // Execute the method
         Object result = joinPoint.proceed();
+        
+        // If we already have the user (session actions), use it
+        // Otherwise, try to find the user after the method execution
+        if (user == null) {
+            user = extractUser(entityId, audited.action());
+            if (user == null) {
+                log.warn("Could not find user for entityId: {} and action: {}", entityId, audited.action());
+                return result;
+            }
+        }
         
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         String methodName = signature.getMethod().getName();
-        
-        String entityId = extractEntityId(joinPoint.getArgs()[0]);
-        User user = extractUser(entityId, audited.action());
         
         auditService.logAction(
             audited.action(),
             audited.entityType(),
             entityId,
             String.format("Method %s executed", methodName),
-            user != null ? user.getId().toString() : null,
-            user != null ? user.getUsername() : null
+            user.getId().toString(),
+            user.getUsername()
         );
         
         return result;
@@ -54,14 +82,26 @@ public class AuditAspect {
     }
 
     private User extractUser(String entityId, String action) {
-        // For session-related actions, extract user from token
-        if (action.startsWith("REVOKE") || action.equals("LOGOUT")) {
-            return userTokenRepository.findByAccessTokenAndRevokedFalse(entityId)
-                .map(token -> token.getUser())
-                .orElse(null);
+        try {
+            // For session-related actions, extract user from token
+            if (action.startsWith("REVOKE") || action.equals("LOGOUT")) {
+                return userTokenRepository.findByAccessTokenAndRevokedFalse(entityId)
+                    .map(token -> token.getUser())
+                    .orElseGet(() -> {
+                        log.warn("No active token found for: {}", entityId);
+                        return null;
+                    });
+            }
+            
+            // For other actions, try to find user by email
+            return userRepository.findByEmail(entityId)
+                .orElseGet(() -> {
+                    log.warn("No user found for email: {}", entityId);
+                    return null;
+                });
+        } catch (Exception e) {
+            log.error("Error extracting user for entityId: {} and action: {}", entityId, action, e);
+            return null;
         }
-        
-        // For other actions, try to find user by email
-        return userRepository.findByEmail(entityId).orElse(null);
     }
 } 
