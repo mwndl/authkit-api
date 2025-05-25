@@ -37,6 +37,7 @@ public enum ApiErrorCode {
     // 403 - Forbidden
     ACCOUNT_LOCKED(403, "ACCOUNT_LOCKED", "Account is locked", "Your account is locked due to too many failed login attempts"),
     ACCOUNT_NOT_VERIFIED(403,"ACCOUNT_NOT_VERIFIED", "Account is not verified", "Please verify your account and try again."),
+    ACCOUNT_ALREADY_VERIFIED(403, "ACCOUNT_ALREADY_VERIFIED", "Account is already verified", "This account has already been verified."),
     FORBIDDEN_ACTION(403, "FORBIDDEN_ACTION", "Forbidden Action", "You do not have permission to perform this action."),
     CANNOT_REVOKE_OWN_SESSION(403, "CANNOT_REVOKE_OWN_SESSION", "Cannot Revoke Own Session", "You cannot revoke your own active session through this method. Use the /logout endpoint to log out of your current session. This method is intended for revoking other active sessions."),
 
