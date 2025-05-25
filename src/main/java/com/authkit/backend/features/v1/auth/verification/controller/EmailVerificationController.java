@@ -30,11 +30,10 @@ public class EmailVerificationController {
 
     @PostMapping("/code")
     public ResponseEntity<Void> verifyEmailWithCode(
-            @Valid @RequestBody VerifyEmailCodeRequest request) {
-        emailVerificationService.verifyEmailWithCode(
-            request.getEmail(),
-            request.getCode()
-        );
+            @Valid @RequestBody VerifyEmailCodeRequest request,
+            HttpServletRequest httpRequest) {
+        String email = jwtService.extractUsernameFromRequest(httpRequest);
+        emailVerificationService.verifyEmailWithCode(email, request.getCode());
         return ResponseEntity.ok().build();
     }
 
