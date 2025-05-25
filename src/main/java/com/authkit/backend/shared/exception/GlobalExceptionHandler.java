@@ -1,5 +1,8 @@
 package com.authkit.backend.shared.exception;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +30,39 @@ public class GlobalExceptionHandler {
         }
 
         return new ResponseEntity<>(response, headers, code.getHttpStatus());
+    }
+
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<ApiErrorResponse> handleMalformedJwtException(MalformedJwtException ex) {
+        ApiErrorCode code = ApiErrorCode.INVALID_TOKEN;
+        ApiErrorResponse response = new ApiErrorResponse(
+                code.getCode(),
+                code.getTitle(),
+                code.getDescription()
+        );
+        return ResponseEntity.status(code.getHttpStatus()).body(response);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ApiErrorResponse> handleExpiredJwtException(ExpiredJwtException ex) {
+        ApiErrorCode code = ApiErrorCode.EXPIRED_TOKEN;
+        ApiErrorResponse response = new ApiErrorResponse(
+                code.getCode(),
+                code.getTitle(),
+                code.getDescription()
+        );
+        return ResponseEntity.status(code.getHttpStatus()).body(response);
+    }
+
+    @ExceptionHandler(SignatureException.class)
+    public ResponseEntity<ApiErrorResponse> handleSignatureException(SignatureException ex) {
+        ApiErrorCode code = ApiErrorCode.INVALID_TOKEN;
+        ApiErrorResponse response = new ApiErrorResponse(
+                code.getCode(),
+                code.getTitle(),
+                code.getDescription()
+        );
+        return ResponseEntity.status(code.getHttpStatus()).body(response);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
