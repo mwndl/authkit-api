@@ -46,7 +46,7 @@ public class AuthController {
                         @ApiResponse(responseCode = "201", description = "Created - User successfully registered"),
                         @ApiResponse(responseCode = "400", description = "Bad Request - Validation errors"),
         })
-        public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterRequest request, HttpServletRequest httpRequest) {
+        public ResponseEntity<TokensResponse> register(@RequestBody @Valid RegisterRequest request, HttpServletRequest httpRequest) {
                 return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request, httpRequest));
         }
 

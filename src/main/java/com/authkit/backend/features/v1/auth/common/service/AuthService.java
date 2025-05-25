@@ -43,7 +43,7 @@ public class AuthService {
     private final VerificationEmailService verificationEmailService;
 
     @Audited(action = "REGISTER", entityType = "USER")
-    public AuthResponse register(RegisterRequest request, HttpServletRequest httpRequest) {
+    public TokensResponse register(RegisterRequest request, HttpServletRequest httpRequest) {
         validationService.validateEmail(request.getEmail());
         validationService.validateUsername(request.getUsername());
         validationService.validateName(request.getName());
@@ -56,10 +56,7 @@ public class AuthService {
         // Send verification email
         verificationEmailService.sendVerificationEmail(user);
 
-        return AuthResponse.builder()
-                .twoFactorRequired(false)
-                .auth(generateAndPersistTokens(user, httpRequest))
-                .build();
+        return generateAndPersistTokens(user, httpRequest);
     }
 
     @Audited(action = "LOGIN", entityType = "USER")
