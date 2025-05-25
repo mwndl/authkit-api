@@ -10,6 +10,7 @@ This project includes support for JWT (access and refresh tokens), password rese
 
 -   User registration and login
 -   JWT authentication with access and refresh tokens
+-   Email verification with token and code-based methods
 -   Secure password reset via email (token-based)
 -   Two-Factor Authentication (2FA) with TOTP (Time-based One-Time Password)
 -   Session management and token refresh
@@ -55,6 +56,33 @@ This project includes support for JWT (access and refresh tokens), password rese
 -   `dto`: data transfer objects
 -   `exception`: centralized error handling
 -   `security`: authentication and authorization config
+
+## Email Verification
+
+The API provides two methods for email verification:
+
+1. **Token-based Verification**
+   - When a user registers, a verification email is sent with a JWT token
+   - The token contains the user's email and expires in 24 hours
+   - Users can click the link in the email
+
+2. **Code-based Verification**
+   - The verification email also includes a 6-character alphanumeric code
+   - Users can verify their email using this code
+   - Requires authentication (valid access token)
+
+3. **Resend Verification**
+   - Users can request a new verification email
+   - Rate-limited to prevent abuse
+   - Requires authentication (valid access token)
+
+### Security Features
+
+- Tokens are single-use and expire after 24 hours
+- Rate limiting on resend attempts
+- Protection against already verified accounts
+- JWT validation and error handling
+- Secure token generation and validation
 
 ## Key Endpoints
 
