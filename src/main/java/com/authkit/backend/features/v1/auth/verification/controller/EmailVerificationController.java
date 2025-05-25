@@ -1,11 +1,14 @@
 package com.authkit.backend.features.v1.auth.verification.controller;
 
 import com.authkit.backend.features.v1.auth.verification.service.EmailVerificationService;
-import com.authkit.backend.features.v1.auth.common.dto.response.AuthResponse;
+import com.authkit.backend.features.v1.auth.common.dto.response.TokensResponse;
 import com.authkit.backend.features.v1.auth.verification.dto.request.VerifyEmailCodeRequest;
+import com.authkit.backend.features.v1.auth.verification.dto.request.VerifyEmailTokenRequest;
 import com.authkit.backend.features.v1.auth.verification.dto.response.ResendVerificationResponse;
 import com.authkit.backend.shared.dto.response.ApiResponse;
 import com.authkit.backend.shared.security.JwtService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,15 +20,17 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/auth/verify")
 @RequiredArgsConstructor
+@Tag(name = "Email Verification", description = "Endpoints for account verification")
 public class EmailVerificationController {
 
     private final EmailVerificationService emailVerificationService;
     private final JwtService jwtService;
 
     @PostMapping("/token")
-    public ResponseEntity<ApiResponse<AuthResponse>> verifyEmail(@RequestParam String token, HttpServletRequest request) {
-        AuthResponse response = emailVerificationService.verifyEmail(token, request);
-        return ResponseEntity.ok(ApiResponse.success(response));
+    public ResponseEntity<TokensResponse> verifyEmail(
+            @Valid @RequestBody VerifyEmailTokenRequest request,
+            HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(emailVerificationService.verifyEmail(request.getToken(), httpRequest));
     }
 
     @PostMapping("/code")

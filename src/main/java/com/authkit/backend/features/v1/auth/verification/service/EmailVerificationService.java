@@ -11,7 +11,7 @@ import com.authkit.backend.shared.exception.ApiException;
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import com.authkit.backend.shared.security.JwtService;
 import com.authkit.backend.features.v1.utils.audit.Audited;
-import com.authkit.backend.features.v1.auth.common.dto.response.AuthResponse;
+import com.authkit.backend.features.v1.auth.common.dto.response.TokensResponse;
 import com.authkit.backend.features.v1.auth.common.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -53,7 +53,7 @@ public class EmailVerificationService {
 
     @Audited(action = "VERIFY_EMAIL", entityType = "USER")
     @Transactional
-    public AuthResponse verifyEmail(String token, HttpServletRequest request) {
+    public TokensResponse verifyEmail(String token, HttpServletRequest request) {
         String email = jwtService.extractUsername(token);
         if (email == null || jwtService.isTokenExpired(token)) {
             throw new ApiException(ApiErrorCode.INVALID_TOKEN);
@@ -61,6 +61,10 @@ public class EmailVerificationService {
 
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new ApiException(ApiErrorCode.USER_NOT_FOUND));
+
+        if (user.getStatus() == UserStatus.ACTIVE) {
+            throw new ApiException(ApiErrorCode.ACCOUNT_ALREADY_VERIFIED);
+        }
 
         VerificationToken verificationToken = verificationTokenRepository.findByTokenAndUsedFalse(token)
             .orElseThrow(() -> new ApiException(ApiErrorCode.INVALID_TOKEN));
@@ -78,7 +82,7 @@ public class EmailVerificationService {
         // Clean up resend attempts when email is verified
         resendAttemptRepository.findByUser(user).ifPresent(resendAttemptRepository::delete);
 
-        return authService.generateAuthResponse(user, request);
+        return authService.generateAndPersistTokens(user, request);
     }
 
     @Audited(action = "VERIFY_EMAIL_CODE", entityType = "USER")
@@ -86,6 +90,10 @@ public class EmailVerificationService {
     public void verifyEmailWithCode(String email, String code) {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new ApiException(ApiErrorCode.USER_NOT_FOUND));
+
+        if (user.getStatus() == UserStatus.ACTIVE) {
+            throw new ApiException(ApiErrorCode.ACCOUNT_ALREADY_VERIFIED);
+        }
 
         VerificationToken verificationToken = verificationTokenRepository.findByUserAndUsedFalse(user)
             .orElseThrow(() -> new ApiException(ApiErrorCode.INVALID_TOKEN));
