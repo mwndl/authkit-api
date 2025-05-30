@@ -1,12 +1,17 @@
 package com.authkit.backend.domain.model;
 
+import com.authkit.backend.domain.enums.NotificationCode;
+import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
 import lombok.Getter;
-import org.hibernate.annotations.JdbcType;
-import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.Builder;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.type.descriptor.jdbc.CharJdbcType;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -20,14 +25,16 @@ public class Notification {
     private UUID id;
 
     @Column(name = "user_id", nullable = false, columnDefinition = "CHAR(36)")
-    @JdbcType(org.hibernate.type.descriptor.jdbc.CharJdbcType.class)
+    @JdbcType(CharJdbcType.class)
     private UUID userId;
 
     @Column(nullable = false)
-    private String title;
+    @Enumerated(EnumType.STRING)
+    private NotificationCode code;
 
-    @Column(nullable = false)
-    private String message;
+    @Type(JsonType.class)
+    @Column(columnDefinition = "json")
+    private Map<String, Object> params;
 
     @Column(nullable = false)
     private String type;
@@ -39,10 +46,10 @@ public class Notification {
     private LocalDateTime createdAt;
 
     @Builder
-    public Notification(UUID userId, String title, String message, String type) {
+    public Notification(UUID userId, NotificationCode code, Map<String, Object> params, String type) {
         this.userId = userId;
-        this.title = title;
-        this.message = message;
+        this.code = code;
+        this.params = params;
         this.type = type;
         this.readStatus = false;
         this.createdAt = LocalDateTime.now();

@@ -2,6 +2,7 @@ package com.authkit.backend.domain.service;
 
 import com.authkit.backend.domain.model.Notification;
 import com.authkit.backend.domain.repository.notification.NotificationRepository;
+import com.authkit.backend.domain.enums.NotificationCode;
 import com.authkit.backend.shared.exception.ApiException;
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -20,11 +22,11 @@ public class NotificationDomainService {
     private final NotificationRepository notificationRepository;
 
     @Transactional
-    public Notification createNotification(UUID userId, String title, String message, String type) {
+    public Notification createNotification(UUID userId, NotificationCode code, Map<String, Object> params, String type) {
         Notification notification = Notification.builder()
                 .userId(userId)
-                .title(title)
-                .message(message)
+                .code(code)
+                .params(params)
                 .type(type)
                 .build();
         return notificationRepository.save(notification);
