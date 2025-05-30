@@ -17,8 +17,16 @@ public enum ApiErrorCode {
     TWO_FACTOR_NOT_ENABLED(400, "TWO_FACTOR_NOT_ENABLED", "Two-factor authentication not enabled", "Two-factor authentication is not enabled for this account. Please enable it to use this feature."),
     TWO_FACTOR_ALREADY_ENABLED(400, "TWO_FACTOR_ALREADY_ENABLED", "Two-factor authentication is already enabled", "Two-factor authentication is already enabled for this method"),
     INVALID_2FA_METHOD(400, "INVALID_2FA_METHOD", "Invalid 2FA method", "Invalid two-factor authentication method"),
+    INVALID_REQUEST(400, "INVALID_REQUEST", "Invalid request", "The request is invalid."),
+    INVALID_EMAIL(400, "INVALID_EMAIL", "Invalid email", "The provided email is invalid."),
+    INVALID_PASSWORD(400, "INVALID_PASSWORD", "Invalid password", "The provided password is invalid."),
+    INVALID_USERNAME(400, "INVALID_USERNAME", "Invalid username", "The provided username is invalid."),
+    INVALID_CODE(400, "INVALID_CODE", "Invalid code", "The provided code is invalid."),
+    INVALID_DEVICE_NAME(400, "INVALID_DEVICE_NAME", "Invalid device name", "The provided device name is invalid."),
+    INVALID_DEVICE_TYPE(400, "INVALID_DEVICE_TYPE", "Invalid device type", "The provided device type is invalid."),
 
     // 401 - Unauthorized
+    UNAUTHORIZED(401, "UNAUTHORIZED", "Unauthorized", "You need to be authenticated to access this resource."),
     UNAUTHENTICATED(401, "UNAUTHENTICATED", "User not authenticated", "Authentication is required to access this resource"),
     AUTH_EMAIL_NOT_FOUND(401, "AUTH_EMAIL_NOT_FOUND", "Email not found", "The email provided was not found in the database."),
     INVALID_CREDENTIALS(401, "INVALID_CREDENTIALS", "Invalid credentials", "Email or password is incorrect."),
@@ -45,6 +53,7 @@ public enum ApiErrorCode {
     USER_NOT_FOUND(404, "USER_NOT_FOUND", "User not found", "The user was not found in the database."),
     SESSION_NOT_FOUND(404, "SESSION_NOT_FOUND" , "Session not found" , "The session was not found in the database." ),
     NOTIFICATION_NOT_FOUND(404, "NOTIFICATION_NOT_FOUND", "Notification not found", "The notification was not found in the database."),
+    PASSKEY_NOT_FOUND(404, "PASSKEY_NOT_FOUND", "Passkey not found", "The requested passkey could not be found"),
 
     // 409 - Conflict
     EMAIL_ALREADY_REGISTERED(409, "EMAIL_ALREADY_REGISTERED", "Email already registered", "An account with this email already exists."),
@@ -56,7 +65,7 @@ public enum ApiErrorCode {
     TOO_MANY_LOGIN_ATTEMPTS(429, "TOO_MANY_LOGIN_ATTEMPTS", "Too Many Login Attempts", "You have made too many failed login attempts. Please try again after the time indicated in the 'Retry-After' header."),
     TOO_MANY_2FA_ATTEMPTS(429, "TOO_MANY_2FA_ATTEMPTS", "Too many 2FA attempts", "Too many failed attempts. Please try again later"),
 
-    // Server Error
+    // 500 - Internal Server Error
     INTERNAL_ERROR(500, "INTERNAL_ERROR", "Unexpected error", "An unexpected error occurred");
 
     private final int httpStatus;
