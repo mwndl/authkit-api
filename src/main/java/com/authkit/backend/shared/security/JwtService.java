@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.time.Duration;
+import java.util.UUID;
 
 @Service
 public class JwtService {
@@ -37,12 +38,22 @@ public class JwtService {
     }
 
     public String extractUsernameFromRequest(HttpServletRequest request) {
+        String token = extractTokenFromRequest(request);
+        return extractUsername(token);
+    }
+
+    private String extractTokenFromRequest(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new ApiException(ApiErrorCode.UNAUTHENTICATED);
         }
-        String token = authHeader.substring(7);
-        return extractUsername(token);
+        return authHeader.substring(7);
+    }
+
+    public UUID extractUserIdFromRequest(HttpServletRequest request) {
+        String token = extractTokenFromRequest(request);
+        String userId = extractClaim(token, claims -> claims.get("userId", String.class));
+        return UUID.fromString(userId);
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
