@@ -5,6 +5,7 @@ import com.authkit.backend.features.v1.auth.common.dto.request.RegisterRequest;
 import com.authkit.backend.domain.model.User;
 import com.authkit.backend.domain.repository.user.UserRepository;
 import com.authkit.backend.domain.repository.auth.common.UserTokenRepository;
+import com.authkit.backend.shared.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -22,6 +23,7 @@ public class AuditAspect {
     private final AuditService auditService;
     private final UserRepository userRepository;
     private final UserTokenRepository userTokenRepository;
+    private final JwtService jwtService;
 
     @Around("@annotation(audited)")
     public Object audit(ProceedingJoinPoint joinPoint, Audited audited) throws Throwable {
@@ -76,6 +78,10 @@ public class AuditAspect {
             return loginRequest.getEmail();
         } else if (firstParam instanceof RegisterRequest registerRequest) {
             return registerRequest.getEmail();
+        } else if (firstParam instanceof User user) {
+            return user.getEmail();
+        } else if (firstParam instanceof String) {
+            return (String) firstParam;
         } else {
             return String.valueOf(firstParam);
         }
@@ -91,6 +97,22 @@ public class AuditAspect {
                         log.warn("No active token found for: {}", entityId);
                         return null;
                     });
+            }
+            
+            // For verification actions, try to extract email from JWT token
+            if (action.equals("VERIFY_EMAIL")) {
+                try {
+                    String email = jwtService.extractUsername(entityId);
+                    if (email != null) {
+                        return userRepository.findByEmail(email)
+                            .orElseGet(() -> {
+                                log.warn("No user found for email from token: {}", email);
+                                return null;
+                            });
+                    }
+                } catch (Exception e) {
+                    log.warn("Failed to extract email from token: {}", entityId);
+                }
             }
             
             // For other actions, try to find user by email
