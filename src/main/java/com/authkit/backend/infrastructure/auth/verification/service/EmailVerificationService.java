@@ -1,5 +1,6 @@
 package com.authkit.backend.infrastructure.auth.verification.service;
 
+import com.authkit.backend.domain.enums.NotificationCode;
 import com.authkit.backend.domain.enums.UserStatus;
 import com.authkit.backend.domain.model.User;
 import com.authkit.backend.domain.model.VerificationToken;
@@ -13,6 +14,7 @@ import com.authkit.backend.shared.security.JwtService;
 import com.authkit.backend.infrastructure.auth.common.dto.response.TokensResponse;
 import com.authkit.backend.infrastructure.auth.common.service.AuthService;
 import com.authkit.backend.infrastructure.utils.audit.Audited;
+import com.authkit.backend.domain.service.NotificationDomainService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,7 @@ public class EmailVerificationService {
     private final JwtService jwtService;
     private final AuthService authService;
     private final VerificationEmailService verificationEmailService;
+    private final NotificationDomainService notificationDomainService;
     private static final int TOKEN_EXPIRATION_HOURS = 24;
 
     // Retry-after durations in seconds
@@ -77,6 +80,8 @@ public class EmailVerificationService {
         user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
 
+        createVerifiedNotification(user);
+
         verificationToken.setUsed(true);
         verificationTokenRepository.save(verificationToken);
 
@@ -110,11 +115,21 @@ public class EmailVerificationService {
         user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
 
+        createVerifiedNotification(user);
+
         verificationToken.setUsed(true);
         verificationTokenRepository.save(verificationToken);
 
         // Clean up resend attempts when email is verified
         resendAttemptRepository.findByUser(user).ifPresent(resendAttemptRepository::delete);
+    }
+
+    private void createVerifiedNotification(User user) {
+        notificationDomainService.createNotification(
+            user.getId(),
+            NotificationCode.ACCOUNT_VERIFIED,
+            null, "ACCOUNT"
+        );
     }
 
     @Audited(action = "RESEND_VERIFICATION_EMAIL", entityType = "USER")
