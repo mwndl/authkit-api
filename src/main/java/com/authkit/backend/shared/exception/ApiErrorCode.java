@@ -44,6 +44,7 @@ public enum ApiErrorCode {
     // 404 - Not Found
     USER_NOT_FOUND(404, "USER_NOT_FOUND", "User not found", "The user was not found in the database."),
     SESSION_NOT_FOUND(404, "SESSION_NOT_FOUND" , "Session not found" , "The session was not found in the database." ),
+    NOTIFICATION_NOT_FOUND(404, "NOTIFICATION_NOT_FOUND", "Notification not found", "The notification was not found in the database."),
 
     // 409 - Conflict
     EMAIL_ALREADY_REGISTERED(409, "EMAIL_ALREADY_REGISTERED", "Email already registered", "An account with this email already exists."),
