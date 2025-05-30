@@ -4,6 +4,7 @@ import com.authkit.backend.domain.model.Passkey;
 import com.authkit.backend.domain.model.User;
 import com.authkit.backend.domain.repository.auth.passkey.PasskeyRepository;
 import com.authkit.backend.domain.repository.user.UserRepository;
+import com.authkit.backend.infrastructure.auth.common.dto.response.TokensResponse;
 import com.authkit.backend.infrastructure.auth.common.service.AuthService;
 import com.authkit.backend.infrastructure.auth.passkey.dto.*;
 import com.authkit.backend.infrastructure.utils.UserServiceHelper;
@@ -129,7 +130,7 @@ public class PasskeyService {
 
     @Audited(action = "FINISH_PASSKEY_VERIFICATION", entityType = "USER")
     @Transactional
-    public void finishVerification(String credentialId, HttpServletRequest request) {
+    public TokensResponse finishVerification(String credentialId, HttpServletRequest request) {
         Passkey passkey = passkeyRepository.findByCredentialId(credentialId)
             .orElseThrow(() -> new ApiException(ApiErrorCode.INVALID_CREDENTIALS));
 
@@ -145,7 +146,7 @@ public class PasskeyService {
         passkeyRepository.save(passkey);
 
         // Generate authentication tokens
-        authService.generateAndPersistTokens(user, request);
+        return authService.generateAndPersistTokens(user, request);
     }
 
     @Audited(action = "LIST_PASSKEYS", entityType = "USER")

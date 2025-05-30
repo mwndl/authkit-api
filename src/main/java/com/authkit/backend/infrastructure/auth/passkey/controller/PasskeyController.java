@@ -1,6 +1,7 @@
 package com.authkit.backend.infrastructure.auth.passkey.controller;
 
 import com.authkit.backend.domain.model.Passkey;
+import com.authkit.backend.infrastructure.auth.common.dto.response.TokensResponse;
 import com.authkit.backend.infrastructure.auth.passkey.dto.*;
 import com.authkit.backend.infrastructure.auth.passkey.service.PasskeyService;
 import com.authkit.backend.infrastructure.utils.audit.Audited;
@@ -92,13 +93,12 @@ public class PasskeyController {
             @ApiResponse(responseCode = "404", description = "Not Found - Passkey not found")
         }
     )
-    public ResponseEntity<Void> finishVerification(
+    public ResponseEntity<TokensResponse> finishVerification(
         @Valid @RequestBody PasskeyVerificationFinishRequest request,
         HttpServletRequest httpRequest
     ) {
         // TODO: Implement signature verification
-        passkeyService.finishVerification(request.getCredentialId(), httpRequest);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(passkeyService.finishVerification(request.getCredentialId(), httpRequest));
     }
 
     @GetMapping
