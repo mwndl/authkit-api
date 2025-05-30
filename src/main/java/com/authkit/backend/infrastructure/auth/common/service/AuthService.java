@@ -165,7 +165,12 @@ public class AuthService {
 
         userTokenRepository.save(userToken);
 
-        // Create notification for new session
+        /* 
+        
+        Commented out for now to avoid spamming notifications for EVERY session creation, 
+        when the 'trusted devices' feature is implemented, we can add it back only if the device is not trusted :)
+
+
         String deviceInfo = httpRequest.getHeader("User-Agent");
         String ipAddress = httpRequest.getRemoteAddr();
         notificationDomainService.createNotification(
@@ -177,6 +182,7 @@ public class AuthService {
             ),
             "SESSION"
         );
+        */
 
         return TokensResponse.builder()
             .accessToken(accessToken)
