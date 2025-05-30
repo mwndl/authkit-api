@@ -7,6 +7,7 @@ import com.authkit.backend.infrastructure.utils.audit.Audited;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -92,13 +93,11 @@ public class PasskeyController {
         }
     )
     public ResponseEntity<Void> finishVerification(
-        @RequestParam String credentialId,
-        @RequestParam String signature,
-        @RequestParam String clientDataJSON,
-        @RequestParam String authenticatorData
+        @Valid @RequestBody PasskeyVerificationFinishRequest request,
+        HttpServletRequest httpRequest
     ) {
         // TODO: Implement signature verification
-        passkeyService.finishVerification(credentialId, null);
+        passkeyService.finishVerification(request.getCredentialId(), httpRequest);
         return ResponseEntity.ok().build();
     }
 
