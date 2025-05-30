@@ -17,13 +17,13 @@ import com.authkit.backend.shared.security.UserDetailsImpl;
 import com.authkit.backend.shared.utils.LoginUtil;
 import com.authkit.backend.features.v1.utils.audit.Audited;
 import com.authkit.backend.features.v1.auth.verification.service.VerificationEmailService;
+import com.authkit.backend.domain.service.NotificationDomainService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.authkit.backend.features.v1.notification.service.NotificationService;
 
 import java.util.Date;
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class AuthService {
     private final ValidationServiceHelper validationService;
     private final LoginUtil loginUtil;
     private final VerificationEmailService verificationEmailService;
-    private final NotificationService notificationService;
+    private final NotificationDomainService notificationDomainService;
 
     @Audited(action = "REGISTER", entityType = "USER")
     public TokensResponse register(RegisterRequest request, HttpServletRequest httpRequest) {
@@ -167,7 +167,7 @@ public class AuthService {
         // Create notification for new session
         String deviceInfo = httpRequest.getHeader("User-Agent");
         String ipAddress = httpRequest.getRemoteAddr();
-        notificationService.createNotification(
+        notificationDomainService.createNotification(
             user.getId(),
             "New Session Created",
             String.format("A new session was created from %s (%s)", deviceInfo, ipAddress),

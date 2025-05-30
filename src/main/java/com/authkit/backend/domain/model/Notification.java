@@ -13,14 +13,10 @@ import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "notifications")
-@Data
-@Builder
+@Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class Notification {
 
     @Id
@@ -46,8 +42,21 @@ public class Notification {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
+    @Builder
+    public Notification(UUID userId, String title, String message, String type) {
+        this.userId = userId;
+        this.title = title;
+        this.message = message;
+        this.type = type;
+        this.readStatus = false;
+        this.createdAt = LocalDateTime.now();
+    }
+
+    public void markAsRead() {
+        this.readStatus = true;
+    }
+
+    public boolean isUnread() {
+        return !this.readStatus;
     }
 } 
