@@ -109,16 +109,22 @@ public class PasskeyService {
         User user = userServiceHelper.getUserByEmail(email);
         userServiceHelper.checkUserStatus(user);
 
-        String challenge = generateChallenge();
-
         // Get all enabled passkeys for the user
         Page<Passkey> passkeys = passkeyRepository.findByUserAndEnabledTrue(user, Pageable.unpaged());
+        
+        if (passkeys.isEmpty()) {
+            PasskeyVerificationResponse response = new PasskeyVerificationResponse();
+            response.setHasPasskey(false);
+            return response;
+        }
+
+        String challenge = generateChallenge();
         String allowCredentials = passkeys.getContent().stream()
             .map(Passkey::getCredentialId)
             .reduce((a, b) -> a + "," + b)
             .orElse("");
 
-        return new PasskeyVerificationResponse(challenge, rpId, allowCredentials);
+        return new PasskeyVerificationResponse(true, challenge, rpId, allowCredentials);
     }
 
     @Audited(action = "FINISH_PASSKEY_VERIFICATION", entityType = "USER")
