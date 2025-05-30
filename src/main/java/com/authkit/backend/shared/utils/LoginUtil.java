@@ -16,7 +16,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +32,6 @@ public class LoginUtil {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final UserTokenRepository userTokenRepository;
-    private final UserDetailsService userDetailsService;
     private final LoginAttemptService loginAttemptService;
 
     public void authenticateUser(LoginRequest request, HttpServletRequest httpRequest) {

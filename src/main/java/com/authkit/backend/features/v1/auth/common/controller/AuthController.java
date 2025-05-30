@@ -8,9 +8,7 @@ import com.authkit.backend.features.v1.auth.common.dto.response.SessionInfoRespo
 import com.authkit.backend.features.v1.auth.common.service.AuthService;
 import com.authkit.backend.features.v1.auth.common.service.SessionService;
 import com.authkit.backend.features.v1.user.service.UserService;
-import com.authkit.backend.features.v1.utils.EmailServiceHelper;
 import com.authkit.backend.features.v1.auth.common.service.PasswordResetService;
-import com.authkit.backend.features.v1.utils.ResetLinkBuilderHelper;
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import com.authkit.backend.shared.exception.ApiException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,9 +35,7 @@ public class AuthController {
         private final AuthService authService;
         private final SessionService sessionService;
         private final PasswordResetService passwordResetService;
-        private final EmailServiceHelper emailService;
         private final UserService userService;
-        private final ResetLinkBuilderHelper resetLinkBuilderHelper;
 
         @PostMapping("/register")
         @Operation(summary = "Register a new user", description = "Creates a new user account", responses = {

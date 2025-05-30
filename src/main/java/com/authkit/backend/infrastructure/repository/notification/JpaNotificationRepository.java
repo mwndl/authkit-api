@@ -1,7 +1,6 @@
 package com.authkit.backend.infrastructure.repository.notification;
 
 import com.authkit.backend.domain.model.Notification;
-import com.authkit.backend.domain.repository.notification.NotificationRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
