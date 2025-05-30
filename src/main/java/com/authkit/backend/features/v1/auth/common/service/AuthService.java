@@ -23,6 +23,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.authkit.backend.features.v1.notification.service.NotificationService;
 
 import java.util.Date;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ public class AuthService {
     private final ValidationServiceHelper validationService;
     private final LoginUtil loginUtil;
     private final VerificationEmailService verificationEmailService;
+    private final NotificationService notificationService;
 
     @Audited(action = "REGISTER", entityType = "USER")
     public TokensResponse register(RegisterRequest request, HttpServletRequest httpRequest) {
@@ -161,6 +163,16 @@ public class AuthService {
         userToken.setDeviceIp(httpRequest.getRemoteAddr());
 
         userTokenRepository.save(userToken);
+
+        // Create notification for new session
+        String deviceInfo = httpRequest.getHeader("User-Agent");
+        String ipAddress = httpRequest.getRemoteAddr();
+        notificationService.createNotification(
+            user.getId(),
+            "New Session Created",
+            String.format("A new session was created from %s (%s)", deviceInfo, ipAddress),
+            "SESSION"
+        );
 
         return TokensResponse.builder()
             .accessToken(accessToken)
