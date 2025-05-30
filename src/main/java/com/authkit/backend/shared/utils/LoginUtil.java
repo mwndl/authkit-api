@@ -4,12 +4,13 @@ import com.authkit.backend.domain.model.LoginAttempt;
 import com.authkit.backend.domain.model.User;
 import com.authkit.backend.domain.repository.auth.common.UserTokenRepository;
 import com.authkit.backend.domain.repository.user.UserRepository;
+import com.authkit.backend.infrastructure.auth.common.dto.request.LoginRequest;
+import com.authkit.backend.infrastructure.auth.common.service.LoginAttemptService;
 import com.authkit.backend.domain.enums.UserStatus;
-import com.authkit.backend.features.v1.auth.common.dto.request.LoginRequest;
 import com.authkit.backend.shared.exception.ApiException;
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import com.authkit.backend.shared.security.JwtUtil;
-import com.authkit.backend.features.v1.auth.common.service.LoginAttemptService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
