@@ -12,6 +12,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 @Aspect
@@ -112,6 +114,19 @@ public class AuditAspect {
                     }
                 } catch (Exception e) {
                     log.warn("Failed to extract email from token: {}", entityId);
+                }
+            }
+            
+            // For passkey actions, get user from security context
+            if (action.startsWith("START_PASSKEY") || action.startsWith("FINISH_PASSKEY")) {
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                if (authentication != null && authentication.isAuthenticated()) {
+                    String email = authentication.getName();
+                    return userRepository.findByEmail(email)
+                        .orElseGet(() -> {
+                            log.warn("No user found for email from security context: {}", email);
+                            return null;
+                        });
                 }
             }
             
