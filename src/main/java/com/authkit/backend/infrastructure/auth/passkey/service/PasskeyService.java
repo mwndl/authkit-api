@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ public class PasskeyService {
     private final UserServiceHelper userServiceHelper;
     private final AuthService authService;
     private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
     private final SecureRandom secureRandom = new SecureRandom();
 
     @Value("${app.webauthn.rp.id}")
@@ -158,12 +160,15 @@ public class PasskeyService {
 
     @Audited(action = "DELETE_PASSKEY", entityType = "USER")
     @Transactional
-    public void deletePasskey(UUID passkeyId) {
+    public void deletePasskey(PasskeyDeleteRequest request) {
         User user = getAuthenticatedUser();
         userServiceHelper.checkUserStatus(user);
 
-        Passkey passkey = passkeyRepository.findByIdAndUserAndEnabledTrue(passkeyId, user)
+        Passkey passkey = passkeyRepository.findByIdAndUserAndEnabledTrue(request.getPasskeyId(), user)
             .orElseThrow(() -> new ApiException(ApiErrorCode.PASSKEY_NOT_FOUND));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) 
+            throw new ApiException(ApiErrorCode.INVALID_CREDENTIALS);
 
         passkeyRepository.delete(passkey);
     }

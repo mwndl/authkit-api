@@ -116,7 +116,7 @@ public class PasskeyController {
             .map(PasskeyResponse::fromEntity));
     }
 
-    @DeleteMapping("/{passkeyId}")
+    @DeleteMapping
     @PreAuthorize("isAuthenticated()")
     @Operation(
         summary = "Delete passkey",
@@ -127,8 +127,8 @@ public class PasskeyController {
             @ApiResponse(responseCode = "404", description = "Not Found - Passkey not found")
         }
     )
-    public ResponseEntity<Void> deletePasskey(@PathVariable UUID passkeyId) {
-        passkeyService.deletePasskey(passkeyId);
+    public ResponseEntity<Void> deletePasskey(@RequestBody PasskeyDeleteRequest request) {
+        passkeyService.deletePasskey(request);
         return ResponseEntity.ok().build();
     }
 } 
