@@ -6,6 +6,7 @@ import com.authkit.backend.shared.exception.ApiException;
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import com.authkit.backend.domain.model.User;
 import com.authkit.backend.domain.model.UserToken;
+import com.authkit.backend.domain.model.Role;
 import com.authkit.backend.domain.repository.auth.common.UserTokenRepository;
 import com.authkit.backend.domain.repository.user.UserRepository;
 import com.authkit.backend.shared.security.JwtService;
@@ -54,6 +55,12 @@ public class AuthService {
         validationService.validatePassword(request.getPassword());
 
         User user = createUser(request);
+        
+        // Assign default ROLE_USER role
+        Role userRole = new Role();
+        userRole.setName(Role.ROLE_USER);
+        user.addRole(userRole);
+        
         userRepository.save(user);
         
         // Send verification email
