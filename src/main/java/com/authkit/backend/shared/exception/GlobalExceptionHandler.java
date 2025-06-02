@@ -6,6 +6,7 @@ import io.jsonwebtoken.security.SignatureException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,6 +31,17 @@ public class GlobalExceptionHandler {
         }
 
         return new ResponseEntity<>(response, headers, code.getHttpStatus());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        ApiErrorCode code = ApiErrorCode.ACCESS_DENIED;
+        ApiErrorResponse response = new ApiErrorResponse(
+                code.getCode(),
+                code.getTitle(),
+                code.getDescription()
+        );
+        return ResponseEntity.status(code.getHttpStatus()).body(response);
     }
 
     @ExceptionHandler(MalformedJwtException.class)
