@@ -48,6 +48,7 @@ public enum ApiErrorCode {
     ACCOUNT_ALREADY_VERIFIED(403, "ACCOUNT_ALREADY_VERIFIED", "Account is already verified", "This account has already been verified."),
     FORBIDDEN_ACTION(403, "FORBIDDEN_ACTION", "Forbidden Action", "You do not have permission to perform this action."),
     CANNOT_REVOKE_OWN_SESSION(403, "CANNOT_REVOKE_OWN_SESSION", "Cannot Revoke Own Session", "You cannot revoke your own active session through this method. Use the /logout endpoint to log out of your current session. This method is intended for revoking other active sessions."),
+    ACCESS_DENIED(403, "ACCESS_DENIED", "Access Denied", "You do not have the required role to access this resource."),
 
     // 404 - Not Found
     USER_NOT_FOUND(404, "USER_NOT_FOUND", "User not found", "The user was not found in the database."),
