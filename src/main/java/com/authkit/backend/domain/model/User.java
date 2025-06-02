@@ -10,10 +10,13 @@ import org.hibernate.annotations.JdbcType;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.Set;
+import java.util.HashSet;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email")
@@ -50,7 +53,34 @@ public class User {
     @Column(nullable = false)
     private UserStatus status;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "user_roles",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    @Builder.Default
+    private Set<Role> roles = new HashSet<>();
+
     private LocalDateTime deletionRequestedAt;
+
+    public void addRole(Role role) {
+        if (role != null && !roles.contains(role)) {
+            roles.add(role);
+            if (!role.getUsers().contains(this)) {
+                role.addUser(this);
+            }
+        }
+    }
+
+    public void removeRole(Role role) {
+        if (role != null && roles.contains(role)) {
+            roles.remove(role);
+            if (role.getUsers().contains(this)) {
+                role.removeUser(this);
+            }
+        }
+    }
 
 }
 
