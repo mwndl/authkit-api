@@ -47,14 +47,17 @@ public class SecurityConfig {
                     "/api/v1/auth/2fa/verify",
                     "/api/v1/auth/2fa/disable",
                     "/api/v1/auth/verify/token",
-                    "/api/v1/auth/verify/code"
+                    "/api/v1/auth/verify/code",
+                    "/api/v1/passkeys/verify/start",
+                    "/api/v1/passkeys/verify/finish"
                 ).permitAll()
                 .requestMatchers(
                         "/v3/api-docs/**",
                         "/swagger-ui/**",
                         "/swagger-ui.html",
                         "/swagger-resources/**",
-                        "/webjars/**"
+                        "/webjars/**",
+                        "/api/v1/ping"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -69,7 +72,10 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOriginPatterns(List.of(
-            "http://localhost:3000"
+            "http://localhost:3000",
+            "https://localhost:3001",
+            "http://192.168.0.25:3000",
+            "https://192.168.0.25:3001"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
