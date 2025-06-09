@@ -6,7 +6,8 @@ public enum NotificationCode {
     ACCOUNT_VERIFIED("notification.account.verified"),
     PASSWORD_CHANGED("notification.password.changed"),
     TWO_FACTOR_ENABLED("notification.2fa.enabled"),
-    TWO_FACTOR_DISABLED("notification.2fa.disabled");
+    TWO_FACTOR_DISABLED("notification.2fa.disabled"),
+    TEST_NOTIFICATION("notification.test");
 
     private final String code;
 
