@@ -69,4 +69,11 @@ public class NotificationController {
         notificationService.deleteNotification(email, notificationId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/test")
+    public ResponseEntity<Void> testNotification(HttpServletRequest request) {
+        String email = jwtService.extractUsernameFromRequest(request);
+        notificationService.sendTestNotification(email);
+        return ResponseEntity.ok().build();
+    }
 } 

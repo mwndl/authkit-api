@@ -54,6 +54,15 @@ public class NotificationService {
         return notificationDomainService.getUserNotifications(user.getId(), pageable);
     }
 
+    public void sendTestNotification(String email) {
+        User user = userServiceHelper.getActiveUserByEmail(email);
+        notificationDomainService.createNotification(
+                user.getId(),
+                NotificationCode.TEST_NOTIFICATION,
+                null, "TEST"
+        );
+    }
+
     @Audited(action = "MARK_NOTIFICATION_AS_READ", entityType = "NOTIFICATION")
     public void markNotificationAsRead(String email, UUID notificationId) {
         if (!StringUtils.hasText(email) || notificationId == null) {
