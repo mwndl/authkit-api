@@ -15,6 +15,7 @@ This project includes support for JWT (access and refresh tokens), password rese
 -   Two-Factor Authentication (2FA) with TOTP (Time-based One-Time Password)
 -   Session management and token refresh
 -   Centralized error handling with custom messages
+-   Real-time notifications via WebSocket
 
 ## Technologies
 
@@ -91,6 +92,31 @@ All available endpoints, including request/response formats and authentication d
 👉 [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
 > Make sure the application is running locally before accessing.
+
+## WebSocket Notifications
+
+The API supports real-time notifications through WebSocket connections, allowing frontend applications to receive instant updates without polling. This is particularly useful for:
+
+- Real-time authentication status updates
+- Session expiration notifications
+- Security alerts
+- System-wide announcements
+
+You can receive notifications in two ways:
+
+1. **WebSocket (Real-time)**
+   Connect to the WebSocket endpoint for instant updates:
+   ```
+   ws://localhost:8080/api/ws/notifications
+   ```
+   The WebSocket connection requires a valid JWT token for authentication, which should be provided in the connection URL as a query parameter.
+
+2. **REST API (Polling)**
+   Alternatively, you can fetch notifications using the standard GET endpoint:
+   ```
+   GET /api/notifications
+   ```
+   This endpoint supports pagination and filtering, making it suitable for applications that prefer traditional HTTP requests.
 
 ## Author
 
