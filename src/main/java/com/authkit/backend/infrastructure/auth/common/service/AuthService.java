@@ -20,11 +20,13 @@ import com.authkit.backend.infrastructure.utils.ValidationServiceHelper;
 import com.authkit.backend.infrastructure.utils.audit.Audited;
 import com.authkit.backend.domain.service.NotificationDomainService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.mail.MailException;
 
 import java.util.Date;
 import java.util.ArrayList;
@@ -46,7 +48,7 @@ public class AuthService {
     private final NotificationDomainService notificationDomainService;
 
     @Audited(action = "REGISTER", entityType = "USER")
-    public TokensResponse register(RegisterRequest request, HttpServletRequest httpRequest) {
+    public TokensResponse register(RegisterRequest request, HttpServletRequest httpRequest) throws MailException, MessagingException {
         validationService.validateEmail(request.getEmail());
         validationService.validateUsername(request.getUsername());
         validationService.validateName(request.getName());
