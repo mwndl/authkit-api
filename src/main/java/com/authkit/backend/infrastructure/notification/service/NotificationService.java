@@ -4,8 +4,10 @@ import com.authkit.backend.domain.model.Notification;
 import com.authkit.backend.domain.model.User;
 import com.authkit.backend.domain.service.NotificationDomainService;
 import com.authkit.backend.domain.enums.NotificationCode;
+import com.authkit.backend.infrastructure.notification.dto.NotificationDTO;
 import com.authkit.backend.infrastructure.utils.UserServiceHelper;
 import com.authkit.backend.infrastructure.utils.audit.Audited;
+import com.authkit.backend.infrastructure.websocket.service.WebSocketNotificationService;
 import com.authkit.backend.shared.exception.ApiException;
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class NotificationService {
 
     private final NotificationDomainService notificationDomainService;
     private final UserServiceHelper userServiceHelper;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     @Audited(action = "CREATE_NOTIFICATION", entityType = "NOTIFICATION")
     public Notification createNotification(UUID userId, String title, String message, String type) {
@@ -41,7 +44,13 @@ public class NotificationService {
         params.put("title", title);
         params.put("message", message);
         
-        return notificationDomainService.createNotification(user.getId(), notificationCode, params, type);
+        Notification notification = notificationDomainService.createNotification(user.getId(), notificationCode, params, type);
+        
+        // Send notification through WebSocket
+        webSocketNotificationService.sendNotification(userId, NotificationDTO.fromEntity(notification));
+        webSocketNotificationService.sendUnreadCount(userId, getUnreadNotificationCount(user.getEmail()));
+        
+        return notification;
     }
 
     @Audited(action = "GET_NOTIFICATIONS", entityType = "NOTIFICATION")
@@ -56,11 +65,15 @@ public class NotificationService {
 
     public void sendTestNotification(String email) {
         User user = userServiceHelper.getActiveUserByEmail(email);
-        notificationDomainService.createNotification(
+        Notification notification = notificationDomainService.createNotification(
                 user.getId(),
                 NotificationCode.TEST_NOTIFICATION,
                 null, "TEST"
         );
+        
+        // Send notification through WebSocket
+        webSocketNotificationService.sendNotification(user.getId(), NotificationDTO.fromEntity(notification));
+        webSocketNotificationService.sendUnreadCount(user.getId(), getUnreadNotificationCount(email));
     }
 
     @Audited(action = "MARK_NOTIFICATION_AS_READ", entityType = "NOTIFICATION")
@@ -71,6 +84,9 @@ public class NotificationService {
 
         User user = userServiceHelper.getActiveUserByEmail(email);
         notificationDomainService.markNotificationAsRead(user.getId(), notificationId);
+        
+        // Send updated unread count through WebSocket
+        webSocketNotificationService.sendUnreadCount(user.getId(), getUnreadNotificationCount(email));
     }
 
     @Audited(action = "MARK_ALL_NOTIFICATIONS_AS_READ", entityType = "NOTIFICATION")
@@ -81,6 +97,9 @@ public class NotificationService {
 
         User user = userServiceHelper.getActiveUserByEmail(email);
         notificationDomainService.markAllNotificationsAsRead(user.getId());
+        
+        // Send updated unread count through WebSocket
+        webSocketNotificationService.sendUnreadCount(user.getId(), getUnreadNotificationCount(email));
     }
 
     public long getUnreadNotificationCount(String email) {
@@ -100,11 +119,17 @@ public class NotificationService {
 
         User user = userServiceHelper.getActiveUserByEmail(email);
         notificationDomainService.deleteNotification(user.getId(), notificationId);
+        
+        // Send updated unread count through WebSocket
+        webSocketNotificationService.sendUnreadCount(user.getId(), getUnreadNotificationCount(email));
     }
 
     @Audited(action = "DELETE_ALL_NOTIFICATIONS", entityType = "NOTIFICATION")
     public void deleteAllNotifications(String email) {
         User user = userServiceHelper.getActiveUserByEmail(email);
         notificationDomainService.deleteAllNotifications(user.getId());
+        
+        // Send updated unread count through WebSocket
+        webSocketNotificationService.sendUnreadCount(user.getId(), getUnreadNotificationCount(email));
     }
 } 

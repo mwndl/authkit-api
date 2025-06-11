@@ -8,6 +8,7 @@ import com.authkit.backend.infrastructure.utils.ValidationServiceHelper;
 import com.authkit.backend.infrastructure.utils.audit.Audited;
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import com.authkit.backend.shared.exception.ApiException;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ public class PasswordResetService {
 
     @Audited(action = "REQUEST_PASSWORD_RESET", entityType = "USER")
     @Transactional
-    public void handleForgotPassword(String email) {
+    public void handleForgotPassword(String email) throws MessagingException {
         // Invalidate any existing unused tokens for this email
         tokenRepository.findByEmailAndUsedFalse(email)
             .ifPresent(token -> {
