@@ -15,11 +15,12 @@ import com.authkit.backend.infrastructure.auth.common.dto.response.TokensRespons
 import com.authkit.backend.infrastructure.auth.common.service.AuthService;
 import com.authkit.backend.infrastructure.utils.audit.Audited;
 import com.authkit.backend.domain.service.NotificationDomainService;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.mail.MessagingException;
+import org.springframework.mail.MailException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -51,7 +52,7 @@ public class EmailVerificationService {
     };
 
     @Audited(action = "SEND_VERIFICATION_EMAIL", entityType = "USER")
-    public void sendVerificationEmail(User user) {
+    public void sendVerificationEmail(User user) throws MailException, MessagingException {
         verificationEmailService.sendVerificationEmail(user);
     }
 
@@ -134,7 +135,7 @@ public class EmailVerificationService {
 
     @Audited(action = "RESEND_VERIFICATION_EMAIL", entityType = "USER")
     @Transactional
-    public Map<String, Object> resendVerificationEmail(String email) {
+    public Map<String, Object> resendVerificationEmail(String email) throws MailException, MessagingException {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new ApiException(ApiErrorCode.USER_NOT_FOUND));
 
@@ -172,7 +173,11 @@ public class EmailVerificationService {
         attempt.setLastAttemptAt(now);
         resendAttemptRepository.save(attempt);
 
-        verificationEmailService.sendVerificationEmail(user);
+        try {
+            verificationEmailService.sendVerificationEmail(user);
+        } catch (MailException | MessagingException e) {
+            throw new ApiException(ApiErrorCode.EMAIL_SEND_FAILED);
+        }
 
         return Map.of(
             "retryAfter", getRetryAfterSeconds(attempt.getAttemptCount())
