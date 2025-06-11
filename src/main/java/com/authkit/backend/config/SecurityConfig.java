@@ -49,7 +49,9 @@ public class SecurityConfig {
                     "/api/v1/auth/verify/token",
                     "/api/v1/auth/verify/code",
                     "/api/v1/passkeys/verify/start",
-                    "/api/v1/passkeys/verify/finish"
+                    "/api/v1/passkeys/verify/finish",
+                    "/api/v1/auth/forgot-password",
+                    "/api/v1/auth/reset-password"
                 ).permitAll()
                 .requestMatchers(
                         "/v3/api-docs/**",
