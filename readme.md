@@ -114,7 +114,7 @@ You can receive notifications in two ways:
 2. **REST API (Polling)**
    Alternatively, you can fetch notifications using the standard GET endpoint:
    ```
-   GET /api/notifications
+   GET /api/v1/notifications
    ```
    This endpoint supports pagination and filtering, making it suitable for applications that prefer traditional HTTP requests.
 
