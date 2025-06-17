@@ -22,6 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.mail.MailException;
+import jakarta.mail.MessagingException;
 
 import java.util.List;
 import java.util.UUID;
@@ -42,7 +44,7 @@ public class AuthController {
                         @ApiResponse(responseCode = "201", description = "Created - User successfully registered"),
                         @ApiResponse(responseCode = "400", description = "Bad Request - Validation errors"),
         })
-        public ResponseEntity<TokensResponse> register(@RequestBody @Valid RegisterRequest request, HttpServletRequest httpRequest) {
+        public ResponseEntity<TokensResponse> register(@RequestBody @Valid RegisterRequest request, HttpServletRequest httpRequest) throws MailException, MessagingException {
                 return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request, httpRequest));
         }
 
@@ -163,6 +165,7 @@ public class AuthController {
 
         @PostMapping("/reset-password")
         public void resetPassword(@RequestBody ResetPasswordRequest request) {
+                passwordResetService.validateNewPassword(request.getNewPassword());
                 PasswordResetToken token = passwordResetService.validateToken(request.getToken());
                 userService.updatePasswordByEmail(token.getEmail(), request.getNewPassword());
                 passwordResetService.markTokenAsUsed(token);

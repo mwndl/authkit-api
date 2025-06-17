@@ -66,7 +66,8 @@ public enum ApiErrorCode {
     TOO_MANY_2FA_ATTEMPTS(429, "TOO_MANY_2FA_ATTEMPTS", "Too many 2FA attempts", "Too many failed attempts. Please try again later"),
 
     // 500 - Internal Server Error
-    INTERNAL_ERROR(500, "INTERNAL_ERROR", "Unexpected error", "An unexpected error occurred");
+    INTERNAL_ERROR(500, "INTERNAL_ERROR", "Unexpected error", "An unexpected error occurred"),
+    EMAIL_SEND_FAILED(500, "EMAIL_SEND_FAILED", "Failed to send email", "There was an error while trying to send the email. Please try again later.");
 
     private final int httpStatus;
     private final String code;

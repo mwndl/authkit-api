@@ -49,15 +49,22 @@ public class SecurityConfig {
                     "/api/v1/auth/verify/token",
                     "/api/v1/auth/verify/code",
                     "/api/v1/passkeys/verify/start",
-                    "/api/v1/passkeys/verify/finish"
+                    "/api/v1/passkeys/verify/finish",
+                    "/api/v1/auth/forgot-password",
+                    "/api/v1/auth/reset-password"
                 ).permitAll()
                 .requestMatchers(
                         "/v3/api-docs/**",
                         "/swagger-ui/**",
                         "/swagger-ui.html",
                         "/swagger-resources/**",
+                        "/h2-console/**",
                         "/webjars/**",
-                        "/api/v1/ping"
+                        "/api/v1/ping",
+                        "/ws/**",
+                        "/api/ws/**",
+                        "/ws",
+                        "/api/ws"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()

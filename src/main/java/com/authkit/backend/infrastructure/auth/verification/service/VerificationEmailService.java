@@ -27,7 +27,7 @@ public class VerificationEmailService {
     private static final int VERIFICATION_CODE_LENGTH = 6;
     private static final int TOKEN_EXPIRATION_HOURS = 24;
 
-    public void sendVerificationEmail(User user) {
+    public void sendVerificationEmail(User user) throws MailException, MessagingException {
         String verificationToken = jwtService.generateVerificationToken(user);
         String verificationCode = generateVerificationCode();
 
@@ -39,7 +39,11 @@ public class VerificationEmailService {
         token.setUsed(false);
         verificationTokenRepository.save(token);
 
-        sendVerificationEmail(user, verificationToken, verificationCode);
+        try {
+            sendVerificationEmail(user, verificationToken, verificationCode);
+        } catch (MailException | MessagingException e) {
+            throw new ApiException(ApiErrorCode.EMAIL_SEND_FAILED);
+        }
     }
 
     private String generateVerificationCode() {
@@ -55,18 +59,14 @@ public class VerificationEmailService {
         return code.toString();
     }
 
-    private void sendVerificationEmail(User user, String verificationToken, String verificationCode) {
-        try {
-            String verificationUrl = verificationLinkBuilderHelper.buildVerificationLink(verificationToken);
-            
-            emailService.sendVerificationEmail(
-                user.getEmail(),
-                user.getName(),
-                verificationUrl,
-                verificationCode
-            );
-        } catch (MailException | MessagingException e) {
-            throw new ApiException(ApiErrorCode.INTERNAL_ERROR);
-        }
+    private void sendVerificationEmail(User user, String verificationToken, String verificationCode) throws MailException, MessagingException {
+        String verificationUrl = verificationLinkBuilderHelper.buildVerificationLink(verificationToken);
+        
+        emailService.sendVerificationEmail(
+            user.getEmail(),
+            user.getName(),
+            verificationUrl,
+            verificationCode
+        );
     }
 } 
