@@ -8,6 +8,7 @@ import com.authkit.backend.infrastructure.utils.ValidationServiceHelper;
 import com.authkit.backend.infrastructure.utils.audit.Audited;
 import com.authkit.backend.shared.exception.ApiErrorCode;
 import com.authkit.backend.shared.exception.ApiException;
+import com.authkit.backend.infrastructure.auth.verification.service.AsyncEmailService;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,11 +24,12 @@ public class PasswordResetService {
     private final PasswordResetTokenRepository tokenRepository;
     private final ResetLinkBuilderHelper resetLinkBuilderHelper;
     private final EmailServiceHelper emailService;
+    private final AsyncEmailService asyncEmailService;
     private final ValidationServiceHelper validationService;
 
     @Audited(action = "REQUEST_PASSWORD_RESET", entityType = "USER")
     @Transactional
-    public void handleForgotPassword(String email) throws MessagingException {
+    public void handleForgotPassword(String email) {
         // Invalidate any existing unused tokens for this email
         tokenRepository.findByEmailAndUsedFalse(email)
             .ifPresent(token -> {
@@ -37,7 +39,9 @@ public class PasswordResetService {
 
         PasswordResetToken token = createToken(email);
         String resetLink = resetLinkBuilderHelper.buildResetPasswordLink(token.getToken());
-        emailService.sendPasswordResetEmail(email, resetLink);
+        
+        // Send password reset email asynchronously - no longer blocks the response
+        asyncEmailService.sendPasswordResetEmailAsync(email, resetLink);
     }
 
     @Transactional
