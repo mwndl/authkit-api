@@ -159,7 +159,7 @@ public class AuthController {
         }
 
         @PostMapping("/forgot-password")
-        public void forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        public void forgotPassword(@RequestBody ForgotPasswordRequest request) throws MessagingException {
                 passwordResetService.handleForgotPassword(request.getEmail());
         }
 

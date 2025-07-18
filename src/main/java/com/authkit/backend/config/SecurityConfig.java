@@ -61,6 +61,8 @@ public class SecurityConfig {
                         "/h2-console/**",
                         "/webjars/**",
                         "/api/v1/ping",
+                        "/api/v1/stats",
+                        "/api/v1/test-email",
                         "/ws/**",
                         "/api/ws/**",
                         "/ws",

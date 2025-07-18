@@ -1,57 +1,85 @@
 package com.authkit.backend.infrastructure.health;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.info.BuildProperties;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.authkit.backend.infrastructure.utils.EmailServiceHelper;
+import com.authkit.backend.shared.dto.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-@Tag(name = "Health", description = "Health check and statistics endpoints")
+@Slf4j
 public class HealthController {
 
-    private final BuildProperties buildProperties;
-    private final Instant startTime = Instant.now();
+    private final EmailServiceHelper emailServiceHelper;
+
+    @Value("${spring.application.name}")
+    private String appName;
 
     @Value("${app.environment}")
     private String environment;
 
+
+
     @GetMapping("/ping")
-    public String ping() {
-        return "pong!";
+    public ResponseEntity<Map<String, Object>> ping() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "ok");
+        response.put("timestamp", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        response.put("application", appName);
+        response.put("environment", environment);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/stats")
-    public Map<String, Object> getStats() {
+    public ResponseEntity<Map<String, Object>> stats() {
         Map<String, Object> stats = new HashMap<>();
-        
-        // Ambiente
+        stats.put("application", appName);
         stats.put("environment", environment);
-        
-        // Versão da API
-        stats.put("version", buildProperties.getVersion());
-        
-        // Tempo de execução
-        long uptimeSeconds = Instant.now().getEpochSecond() - startTime.getEpochSecond();
-        stats.put("uptime", uptimeSeconds);
-        
-        // Data de início
-        stats.put("startTime", startTime.toString());
-        
-        // Informações do build
-        stats.put("buildTime", buildProperties.getTime());
-        stats.put("buildGroup", buildProperties.getGroup());
-        stats.put("buildArtifact", buildProperties.getArtifact());
-        
-        return stats;
+        stats.put("version", "1.2.0");
+        stats.put("uptime", System.currentTimeMillis());
+        stats.put("build", "2025-01-17");
+        return ResponseEntity.ok(stats);
+    }
+
+
+
+    @PostMapping("/test-email")
+    public ResponseEntity<ApiResponse<String>> testEmail(@RequestParam String to) {
+        try {
+            String subject = "Test Email - AuthKit";
+            String message = String.format("""
+                This is a test email from AuthKit.
+                
+                Timestamp: %s
+                Environment: %s
+                Application: %s
+                
+                If you received this email, the AWS SES configuration is working correctly!
+                """, 
+                LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                environment,
+                appName
+            );
+            
+            emailServiceHelper.sendEmail(to, subject, message);
+            
+            log.info("Test email sent successfully to: {}", to);
+            return ResponseEntity.ok(ApiResponse.success("Test email sent successfully"));
+            
+        } catch (MailException e) {
+            log.error("Failed to send test email to: {}", to, e);
+            return ResponseEntity.badRequest()
+                .body(ApiResponse.error("Failed to send test email: " + e.getMessage()));
+        }
     }
 } 

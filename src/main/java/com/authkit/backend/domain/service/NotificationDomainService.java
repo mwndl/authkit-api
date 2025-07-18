@@ -38,10 +38,7 @@ public class NotificationDomainService {
 
     @Transactional
     public void markNotificationAsRead(UUID userId, UUID notificationId) {
-        Notification notification = notificationRepository.findByUserId(userId, null)
-                .stream()
-                .filter(n -> n.getId().equals(notificationId))
-                .findFirst()
+        Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new ApiException(ApiErrorCode.NOTIFICATION_NOT_FOUND));
 
         if (!notification.getUserId().equals(userId)) {
@@ -65,10 +62,7 @@ public class NotificationDomainService {
 
     @Transactional
     public void deleteNotification(UUID userId, UUID notificationId) {
-        Notification notification = notificationRepository.findByUserId(userId, null)
-                .stream()
-                .filter(n -> n.getId().equals(notificationId))
-                .findFirst()
+        Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new ApiException(ApiErrorCode.NOTIFICATION_NOT_FOUND));
 
         if (!notification.getUserId().equals(userId)) {
