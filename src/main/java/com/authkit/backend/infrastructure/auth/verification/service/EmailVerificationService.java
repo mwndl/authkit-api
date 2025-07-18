@@ -36,6 +36,7 @@ public class EmailVerificationService {
     private final JwtService jwtService;
     private final AuthService authService;
     private final VerificationEmailService verificationEmailService;
+    private final AsyncEmailService asyncEmailService;
     private final NotificationDomainService notificationDomainService;
     private static final int TOKEN_EXPIRATION_HOURS = 24;
 
@@ -52,8 +53,10 @@ public class EmailVerificationService {
     };
 
     @Audited(action = "SEND_VERIFICATION_EMAIL", entityType = "USER")
-    public void sendVerificationEmail(User user) throws MailException, MessagingException {
-        verificationEmailService.sendVerificationEmail(user);
+    public void sendVerificationEmail(User user) {
+        // This method is now deprecated in favor of async processing
+        // Keeping for backward compatibility but should use asyncEmailService directly
+        asyncEmailService.sendVerificationEmailAsync(user);
     }
 
     @Audited(action = "VERIFY_EMAIL", entityType = "USER")
@@ -135,7 +138,7 @@ public class EmailVerificationService {
 
     @Audited(action = "RESEND_VERIFICATION_EMAIL", entityType = "USER")
     @Transactional
-    public Map<String, Object> resendVerificationEmail(String email) throws MailException, MessagingException {
+    public Map<String, Object> resendVerificationEmail(String email) {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new ApiException(ApiErrorCode.USER_NOT_FOUND));
 
@@ -173,11 +176,8 @@ public class EmailVerificationService {
         attempt.setLastAttemptAt(now);
         resendAttemptRepository.save(attempt);
 
-        try {
-            verificationEmailService.sendVerificationEmail(user);
-        } catch (MailException | MessagingException e) {
-            throw new ApiException(ApiErrorCode.EMAIL_SEND_FAILED);
-        }
+        // Send verification email asynchronously - no longer blocks the response
+        asyncEmailService.sendVerificationEmailWithRetry(user);
 
         return Map.of(
             "retryAfter", getRetryAfterSeconds(attempt.getAttemptCount())

@@ -16,6 +16,7 @@ import com.authkit.backend.infrastructure.auth.common.dto.request.RegisterReques
 import com.authkit.backend.infrastructure.auth.common.dto.response.AuthResponse;
 import com.authkit.backend.infrastructure.auth.common.dto.response.TokensResponse;
 import com.authkit.backend.infrastructure.auth.verification.service.VerificationEmailService;
+import com.authkit.backend.infrastructure.auth.verification.service.AsyncEmailService;
 import com.authkit.backend.infrastructure.utils.ValidationServiceHelper;
 import com.authkit.backend.infrastructure.utils.audit.Audited;
 import com.authkit.backend.domain.service.NotificationDomainService;
@@ -45,10 +46,11 @@ public class AuthService {
     private final ValidationServiceHelper validationService;
     private final LoginUtil loginUtil;
     private final VerificationEmailService verificationEmailService;
+    private final AsyncEmailService asyncEmailService;
     private final NotificationDomainService notificationDomainService;
 
     @Audited(action = "REGISTER", entityType = "USER")
-    public TokensResponse register(RegisterRequest request, HttpServletRequest httpRequest) throws MailException, MessagingException {
+    public TokensResponse register(RegisterRequest request, HttpServletRequest httpRequest) {
         validationService.validateEmail(request.getEmail());
         validationService.validateUsername(request.getUsername());
         validationService.validateName(request.getName());
@@ -58,8 +60,8 @@ public class AuthService {
         User user = createUser(request);
         userRepository.save(user);
         
-        // Send verification email
-        verificationEmailService.sendVerificationEmail(user);
+        // Send verification email asynchronously - no longer blocks the response
+        asyncEmailService.sendVerificationEmailWithRetry(user);
 
         return generateAndPersistTokens(user, httpRequest);
     }

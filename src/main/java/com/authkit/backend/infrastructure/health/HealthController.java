@@ -5,10 +5,12 @@ import com.authkit.backend.shared.dto.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -21,14 +23,14 @@ import java.util.Map;
 public class HealthController {
 
     private final EmailServiceHelper emailServiceHelper;
+    private final BuildProperties buildProperties;
+    private final Instant startTime = Instant.now();
 
     @Value("${spring.application.name}")
     private String appName;
 
     @Value("${app.environment}")
     private String environment;
-
-
 
     @GetMapping("/ping")
     public ResponseEntity<Map<String, Object>> ping() {
@@ -43,15 +45,27 @@ public class HealthController {
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> stats() {
         Map<String, Object> stats = new HashMap<>();
-        stats.put("application", appName);
+        
+        // Environment
         stats.put("environment", environment);
-        stats.put("version", "1.2.0");
-        stats.put("uptime", System.currentTimeMillis());
-        stats.put("build", "2025-01-17");
+        
+        // API Version
+        stats.put("version", buildProperties.getVersion());
+        
+        // Uptime in seconds
+        long uptimeSeconds = Instant.now().getEpochSecond() - startTime.getEpochSecond();
+        stats.put("uptime", uptimeSeconds);
+        
+        // Start time
+        stats.put("startTime", startTime.toString());
+        
+        // Build information
+        stats.put("buildTime", buildProperties.getTime());
+        stats.put("buildGroup", buildProperties.getGroup());
+        stats.put("buildArtifact", buildProperties.getArtifact());
+        
         return ResponseEntity.ok(stats);
     }
-
-
 
     @PostMapping("/test-email")
     public ResponseEntity<ApiResponse<String>> testEmail(@RequestParam String to) {

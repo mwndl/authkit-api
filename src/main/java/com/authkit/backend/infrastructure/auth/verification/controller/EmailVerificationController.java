@@ -14,8 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.mail.MailException;
-import jakarta.mail.MessagingException;
 
 import java.util.Map;
 
@@ -45,7 +43,7 @@ public class EmailVerificationController {
     }
 
     @PostMapping("/resend")
-    public ResponseEntity<ApiResponse<ResendVerificationResponse>> resendVerificationEmail(HttpServletRequest request) throws MailException, MessagingException {
+    public ResponseEntity<ApiResponse<ResendVerificationResponse>> resendVerificationEmail(HttpServletRequest request) {
         String email = jwtService.extractUsernameFromRequest(request);
         Map<String, Object> result = emailVerificationService.resendVerificationEmail(email);
         ResendVerificationResponse response = new ResendVerificationResponse(
