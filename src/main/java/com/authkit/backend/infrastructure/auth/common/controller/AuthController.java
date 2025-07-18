@@ -22,8 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.mail.MailException;
-import jakarta.mail.MessagingException;
 
 import java.util.List;
 import java.util.UUID;
@@ -40,11 +38,11 @@ public class AuthController {
         private final UserService userService;
 
         @PostMapping("/register")
-        @Operation(summary = "Register a new user", description = "Creates a new user account", responses = {
+        @Operation(summary = "Register a new user", description = "Creates a new user account with async email verification", responses = {
                         @ApiResponse(responseCode = "201", description = "Created - User successfully registered"),
                         @ApiResponse(responseCode = "400", description = "Bad Request - Validation errors"),
         })
-        public ResponseEntity<TokensResponse> register(@RequestBody @Valid RegisterRequest request, HttpServletRequest httpRequest) throws MailException, MessagingException {
+        public ResponseEntity<TokensResponse> register(@RequestBody @Valid RegisterRequest request, HttpServletRequest httpRequest) {
                 return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request, httpRequest));
         }
 
@@ -159,7 +157,7 @@ public class AuthController {
         }
 
         @PostMapping("/forgot-password")
-        public void forgotPassword(@RequestBody ForgotPasswordRequest request) throws MessagingException {
+        public void forgotPassword(@RequestBody ForgotPasswordRequest request) {
                 passwordResetService.handleForgotPassword(request.getEmail());
         }
 
